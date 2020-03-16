@@ -5,6 +5,7 @@ import com.flanks255.psu.items.PocketStorageUnit;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
@@ -64,6 +65,19 @@ public class PSUContainer extends Container {
             return playerIn.getHeldItemOffhand();
         }
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack slotClick(int slot, int dragType, ClickType clickTypeIn, PlayerEntity player) {
+        if (slot >= 0) {
+            if (getSlot(slot).getStack().getItem() instanceof PocketStorageUnit)
+                return ItemStack.EMPTY;
+        }
+        if (clickTypeIn == ClickType.SWAP)
+            return ItemStack.EMPTY;
+
+        if (slot >= 0) getSlot(slot).inventory.markDirty();
+        return super.slotClick(slot, dragType, clickTypeIn, player);
     }
 
     public void networkSlotClick(int slot, boolean shift, boolean ctrl, boolean rightClick) {
