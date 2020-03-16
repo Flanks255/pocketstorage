@@ -1,6 +1,7 @@
 package com.flanks255.psu.gui;
 
 import com.flanks255.psu.PSUItemHandler;
+import com.flanks255.psu.items.PocketStorageUnit;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -24,8 +25,14 @@ public class PSUContainer extends Container {
         super(type, windowId);
 
         playerinv = playerInventory;
-        IItemHandler tmp = player.getHeldItemMainhand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null);
-        itemKey = player.getHeldItemMainhand().getTranslationKey();
+        ItemStack stack = findPSU(player);
+        if (stack == null || stack.isEmpty()) {
+            player.closeScreen();
+            return;
+        }
+
+        IItemHandler tmp = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null);
+        itemKey = stack.getTranslationKey();
         if (tmp instanceof PSUItemHandler) {
             handler = (PSUItemHandler) tmp;
             ((PSUItemHandler) tmp).load();
@@ -39,6 +46,25 @@ public class PSUContainer extends Container {
     public String itemKey;
     public PSUItemHandler handler;
     private PlayerInventory playerinv;
+    protected int slotID;
+
+    public ItemStack findPSU(PlayerEntity playerIn) {
+        PlayerInventory playerInventory = playerIn.inventory;
+
+        if (playerIn.getHeldItemMainhand().getItem() instanceof PocketStorageUnit) {
+            for (int i = 0; i <= 8; i++) {
+                ItemStack stack = playerInventory.getStackInSlot(i);
+                if (stack == playerIn.getHeldItemMainhand()) {
+                    slotID = i;
+                    return stack;
+                }
+            }
+        } else if (playerIn.getHeldItemOffhand().getItem() instanceof PocketStorageUnit) {
+            slotID = -106;
+            return playerIn.getHeldItemOffhand();
+        }
+        return ItemStack.EMPTY;
+    }
 
     public void networkSlotClick(int slot, boolean shift, boolean ctrl, boolean rightClick) {
         if (slot >= 0 && slot <= handler.getSlots()) {
@@ -85,7 +111,9 @@ public class PSUContainer extends Container {
 
     @Override
     public boolean canInteractWith(PlayerEntity playerIn) {
-        return true;
+        if (slotID == -106)
+            return true; //offhand, cant move it anyway...
+        return !playerIn.inventory.getStackInSlot(slotID).isEmpty();
     }
 
     @Override
