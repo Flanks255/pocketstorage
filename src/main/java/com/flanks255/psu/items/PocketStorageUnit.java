@@ -142,22 +142,22 @@ public class PocketStorageUnit extends Item {
         public PSUCaps(ItemStack stack) {
             this.itemstack = stack;
             inventory = new PSUItemHandler(itemstack, size, capacity);
-            what_the_living_hell = LazyOptional.of(() -> inventory);
+            lazyOptional = LazyOptional.of(() -> inventory);
         }
 
         private ItemStack itemstack;
 
         private PSUItemHandler inventory;
-        private LazyOptional<IItemHandler> what_the_living_hell;
+        private LazyOptional<IItemHandler> lazyOptional;
 
         @Nonnull
         @Override
         public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
             if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-                return what_the_living_hell.cast();
+                return lazyOptional.cast();
             }
             else
-                return null;
+                return LazyOptional.empty();
         }
     }
 }
