@@ -45,7 +45,7 @@ public class PSUContainer extends Container {
             if (!playerinv.getItemStack().isEmpty()) {
                 ItemStack incoming = playerinv.getItemStack();
                 if (incoming.hasTag() && playerinv.player.world.isRemote()) {
-                    playerinv.player.sendMessage(new StringTextComponent(I18n.format("PocketStorage.nodataitems")));
+                    playerinv.player.sendMessage(new StringTextComponent(I18n.format("pocketstorage.nodataitems")));
                     return;
                 }
                 if (!ctrl) {
