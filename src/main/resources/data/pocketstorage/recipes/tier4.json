@@ -1,0 +1,26 @@
+{
+  "type": "pocketstorage:data_upgrade",
+  "pattern":[
+    "aba",
+    "cdc",
+    "aba"
+  ],
+  "key":{
+    "a":{
+      "item":"minecraft:piston"
+    },
+    "b":{
+      "tag":"forge:chests"
+    },
+    "c":{
+      "tag":"forge:nether_stars"
+    },
+    "d":{
+      "item":"pocketstorage:psu_3"
+    }
+  },
+  "result":{
+    "item":"pocketstorage:psu_4",
+    "count":1
+  }
+}

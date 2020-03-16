@@ -1,0 +1,26 @@
+{
+  "type": "pocketstorage:data_upgrade",
+  "pattern":[
+    "aba",
+    "cdc",
+    "aba"
+  ],
+  "key":{
+    "a":{
+      "tag":"forge:ingots/gold"
+    },
+    "b":{
+      "item":"minecraft:piston"
+    },
+    "c":{
+      "tag":"forge:chests"
+    },
+    "d":{
+      "item":"pocketstorage:psu_1"
+    }
+  },
+  "result":{
+    "item":"pocketstorage:psu_2",
+    "count":1
+  }
+}
