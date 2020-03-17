@@ -115,6 +115,17 @@ public class PocketStorageUnit extends Item {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+        openGUI(worldIn,playerIn,handIn);
+        return super.onItemRightClick(worldIn, playerIn, handIn);
+    }
+
+    @Override
+    public ActionResultType onItemUse(ItemUseContext context) {
+        openGUI(context.getWorld(), context.getPlayer(), context.getHand());
+        return ActionResultType.FAIL;
+    }
+
+    private void openGUI(World worldIn, PlayerEntity playerIn, Hand handIn) {
         if (!worldIn.isRemote) {
             playerIn.openContainer((new INamedContainerProvider() {
                 @Override
@@ -129,12 +140,6 @@ public class PocketStorageUnit extends Item {
                 }
             }));
         }
-        return super.onItemRightClick(worldIn, playerIn, handIn);
-    }
-
-    @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
-        return ActionResultType.FAIL;
     }
 
 
