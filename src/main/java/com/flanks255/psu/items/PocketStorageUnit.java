@@ -98,8 +98,9 @@ public class PocketStorageUnit extends Item {
             return false;
 
         IItemHandler handler = stupidIdiot.orElse(null);
-        if (handler == null)
+        if (handler == null && handler instanceof PSUItemHandler)
             return false;
+        ((PSUItemHandler)handler).load();
 
         ItemStack pickedUp = event.getItem().getItem();
         for (int i = 0; i < handler.getSlots(); i++) {
