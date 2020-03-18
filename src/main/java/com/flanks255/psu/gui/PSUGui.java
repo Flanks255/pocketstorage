@@ -152,7 +152,7 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
                 if(stack != null && !stack.isEmpty()) {
                     net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(stack);
                     List<String> tooltip = getTooltipFromItem(stack);
-                    tooltip.add(String.format("Count: %d",stack.getCount()));
+                    tooltip.add(I18n.format("pocketstorage.count",stack.getCount()));
                     renderTooltip(tooltip, mx, my, Minecraft.getInstance().fontRenderer);
                     net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip();
                 }

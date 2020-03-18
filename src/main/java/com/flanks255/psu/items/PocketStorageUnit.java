@@ -93,12 +93,12 @@ public class PocketStorageUnit extends Item {
         if (nbt == null)
             return false;
 
-        LazyOptional<IItemHandler> stupidIdiot = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
-        if (!stupidIdiot.isPresent())
+        LazyOptional<IItemHandler> optional = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+        if (!optional.isPresent())
             return false;
 
-        IItemHandler handler = stupidIdiot.orElse(null);
-        if (handler == null && handler instanceof PSUItemHandler)
+        IItemHandler handler = optional.orElse(null);
+        if (handler == null || !(handler instanceof PSUItemHandler))
             return false;
         ((PSUItemHandler)handler).load();
 

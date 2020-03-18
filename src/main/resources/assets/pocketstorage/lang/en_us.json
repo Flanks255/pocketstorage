@@ -21,5 +21,6 @@
 
   "pocketstorage.nodataitems": "Only simple items(no data) are allowed inside the Pocket Storage Unit.",
   "pocketstorage.empty": "<  >",
-  "pocketstorage.shift": "§7Press <§6§oShift§7> for info."
+  "pocketstorage.shift": "§7Press <§6§oShift§7> for info.",
+  "pocketstorage.count": "§fCount %d"
 }
