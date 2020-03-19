@@ -33,6 +33,11 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class PocketStorageUnit extends Item {
+    private int size;
+    private Rarity rarity;
+    private String name;
+    private int capacity;
+
     public PocketStorageUnit(String name, int size, int capacity, Rarity rarity) {
         super(new Item.Properties().maxStackSize(1).group(ItemGroup.TOOLS));
         this.name = name;
@@ -40,11 +45,6 @@ public class PocketStorageUnit extends Item {
         this.rarity = rarity;
         this.capacity = capacity;
     }
-
-    private int size;
-    private Rarity rarity;
-    private String name;
-    private int capacity;
 
     public PocketStorageUnit setName() {
         setRegistryName(new ResourceLocation(PocketStorage.MODID, name));
@@ -64,7 +64,6 @@ public class PocketStorageUnit extends Item {
         String tmp = I18n.format(key);
         return tmp.equals(key)?fallback:tmp;
     }
-
 
     @OnlyIn(Dist.CLIENT)
     @Override
@@ -131,24 +130,22 @@ public class PocketStorageUnit extends Item {
                 TileEntity te = world.getTileEntity(context.getPos());
                 LazyOptional<IItemHandler> chestOptional = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
                 LazyOptional<IItemHandler> myOptional = context.getItem().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
-                if (chestOptional.isPresent() && myOptional.isPresent()) {
-                        myOptional.ifPresent((my) -> {
-                            chestOptional.ifPresent((chest) -> {
-                                if (my instanceof PSUItemHandler) {
-                                    ((PSUItemHandler) my).load();
-                                    for (int i = 0; i < chest.getSlots(); i++) {
-                                        ItemStack stack = chest.getStackInSlot(i);
-                                        if (stack.isEmpty())
-                                            continue;
-                                        if (((PSUItemHandler) my).hasItem(stack)) {
-                                            ItemStack newstack = chest.extractItem(i, stack.getCount(), false);
-                                                ((PSUItemHandler) my).insertItemSlotless(newstack, false);
-                                        }
+                    myOptional.ifPresent((my) -> {
+                        chestOptional.ifPresent((chest) -> {
+                            if (my instanceof PSUItemHandler) {
+                                ((PSUItemHandler) my).load();
+                                for (int i = 0; i < chest.getSlots(); i++) {
+                                    ItemStack stack = chest.getStackInSlot(i);
+                                    if (stack.isEmpty())
+                                        continue;
+                                    if (((PSUItemHandler) my).hasItem(stack)) {
+                                        ItemStack newstack = chest.extractItem(i, stack.getCount(), false);
+                                            ((PSUItemHandler) my).insertItemSlotless(newstack, false);
                                     }
                                 }
-                            });
+                            }
                         });
-                }
+                    });
             } else
                 openGUI(context.getWorld(), context.getPlayer(), context.getHand());
         }
