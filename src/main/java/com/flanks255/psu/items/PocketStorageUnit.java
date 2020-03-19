@@ -3,6 +3,7 @@ package com.flanks255.psu.items;
 import com.flanks255.psu.PSUItemHandler;
 import com.flanks255.psu.gui.PSUContainer;
 import com.flanks255.psu.PocketStorage;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
@@ -12,6 +13,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -122,7 +124,34 @@ public class PocketStorageUnit extends Item {
 
     @Override
     public ActionResultType onItemUse(ItemUseContext context) {
-        openGUI(context.getWorld(), context.getPlayer(), context.getHand());
+        if (!context.getWorld().isRemote) {
+            World world = context.getWorld();
+            BlockState bs = world.getBlockState(context.getPos());
+            if (bs.hasTileEntity()) {
+                TileEntity te = world.getTileEntity(context.getPos());
+                LazyOptional<IItemHandler> chestOptional = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                LazyOptional<IItemHandler> myOptional = context.getItem().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                if (chestOptional.isPresent() && myOptional.isPresent()) {
+                        myOptional.ifPresent((my) -> {
+                            chestOptional.ifPresent((chest) -> {
+                                if (my instanceof PSUItemHandler) {
+                                    ((PSUItemHandler) my).load();
+                                    for (int i = 0; i < chest.getSlots(); i++) {
+                                        ItemStack stack = chest.getStackInSlot(i);
+                                        if (stack.isEmpty())
+                                            continue;
+                                        if (((PSUItemHandler) my).hasItem(stack)) {
+                                            ItemStack newstack = chest.extractItem(i, stack.getCount(), false);
+                                                ((PSUItemHandler) my).insertItemSlotless(newstack, false);
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                }
+            } else
+                openGUI(context.getWorld(), context.getPlayer(), context.getHand());
+        }
         return ActionResultType.FAIL;
     }
 
