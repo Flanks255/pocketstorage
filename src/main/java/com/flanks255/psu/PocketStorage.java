@@ -75,8 +75,9 @@ public class PocketStorage
     }
 
     private void interactEvent(PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getSide() == LogicalSide.SERVER && event.getItemStack().getItem() instanceof PocketStorageUnit && event.getPlayer().isSneaking()) {
-            PocketStorageUnit.onLeftClick(event);
+        if (event.getItemStack().getItem() instanceof PocketStorageUnit && event.getPlayer().isSneaking()) {
+            if (event.getSide() == LogicalSide.SERVER)
+                ((PocketStorageUnit) event.getItemStack().getItem()).onLeftClickEvent(event);
             event.setCanceled(true);
         }
     }

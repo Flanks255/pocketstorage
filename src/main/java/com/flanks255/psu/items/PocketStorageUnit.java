@@ -40,6 +40,9 @@ public class PocketStorageUnit extends Item {
     private String name;
     private int capacity;
 
+    private long lastInteractMills = 0;
+    private BlockPos lastInteractPos = new BlockPos(0,0,0);
+
     public PocketStorageUnit(String name, int size, int capacity, Rarity rarity) {
         super(new Item.Properties().maxStackSize(1).group(ItemGroup.TOOLS));
         this.name = name;
@@ -74,11 +77,13 @@ public class PocketStorageUnit extends Item {
         String translationKey = getTranslationKey();
 
         if (Screen.hasShiftDown()) {
-            tooltip.add(new StringTextComponent(I18n.format( translationKey + ".info", capacity, size)));
+            tooltip.add(new StringTextComponent(I18n.format( translationKey + ".info", size, capacity)));
             if (hasTranslation(translationKey + ".info2"))
                 tooltip.add(new StringTextComponent( I18n.format(translationKey + ".info2")));
             if (hasTranslation(translationKey + ".info3"))
                 tooltip.add(new StringTextComponent( I18n.format(translationKey + ".info3")));
+            tooltip.add(new StringTextComponent(I18n.format("pocketstorage.deposit")));
+            tooltip.add(new StringTextComponent(I18n.format("pocketstorage.withdraw")));
         }
         else {
             tooltip.add(new StringTextComponent( fallbackString("pocketstorage.shift", "Press <§6§oShift§r> for info.") ));
@@ -136,13 +141,20 @@ public class PocketStorageUnit extends Item {
                         chestOptional.ifPresent((chest) -> {
                             if (my instanceof PSUItemHandler) {
                                 ((PSUItemHandler) my).load();
-                                for (int i = 0; i < chest.getSlots(); i++) {
-                                    ItemStack stack = chest.getStackInSlot(i);
+                                for (int i = 0; i < my.getSlots(); i++) {
+                                    ItemStack stack = my.getStackInSlot(i);
                                     if (stack.isEmpty())
                                         continue;
-                                    if (((PSUItemHandler) my).hasItem(stack)) {
-                                        ItemStack newstack = chest.extractItem(i, stack.getCount(), false);
-                                            ((PSUItemHandler) my).insertItemSlotless(newstack, false);
+                                    ItemStack backup = my.getStackInSlot(i);
+                                    backup.setCount(1);
+                                    stack.setCount(stack.getCount()-1);
+                                    ItemStack remainder = ItemHandlerHelper.insertItemStacked(chest, stack, false );
+                                    if (remainder.isEmpty()) {
+                                        ((PSUItemHandler) my).setStackInSlot(i, backup);
+                                    }
+                                    else {
+                                        remainder.setCount(remainder.getCount()+1);
+                                        ((PSUItemHandler) my).setStackInSlot(i, remainder);
                                     }
                                 }
                             }
@@ -154,8 +166,41 @@ public class PocketStorageUnit extends Item {
         return ActionResultType.FAIL;
     }
 
-    public static void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
-        PocketStorage.LOGGER.info("Punch event, but this time from within the itemstack..." + event.toString());
+    public void onLeftClickEvent(PlayerInteractEvent.LeftClickBlock event) {
+        if (lastInteractPos.compareTo(event.getPos()) != 0)
+            onLeftClick(event);
+        else if (System.currentTimeMillis() - lastInteractMills > 1000)
+            onLeftClick(event);
+        lastInteractMills = System.currentTimeMillis();
+        lastInteractPos = event.getPos();
+    }
+
+    private void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
+        if (!event.getWorld().isRemote) {
+            World world = event.getWorld();
+            BlockState bs = world.getBlockState(event.getPos());
+            if (bs.hasTileEntity()) {
+                TileEntity te = world.getTileEntity(event.getPos());
+                LazyOptional<IItemHandler> chestOptional = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                LazyOptional<IItemHandler> myOptional = event.getPlayer().getHeldItemMainhand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                myOptional.ifPresent((my) -> {
+                    chestOptional.ifPresent((chest) -> {
+                        if (my instanceof PSUItemHandler) {
+                            ((PSUItemHandler) my).load();
+                            for (int i = 0; i < chest.getSlots(); i++) {
+                                ItemStack stack = chest.getStackInSlot(i);
+                                if (stack.isEmpty())
+                                    continue;
+                                if (((PSUItemHandler) my).hasItem(stack)) {
+                                    ItemStack newstack = chest.extractItem(i, stack.getCount(), false);
+                                    ((PSUItemHandler) my).insertItemSlotless(newstack, false);
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+        }
     }
 
     private void openGUI(World worldIn, PlayerEntity playerIn, Hand handIn) {
