@@ -15,6 +15,7 @@ import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -24,6 +25,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -150,6 +152,10 @@ public class PocketStorageUnit extends Item {
                 openGUI(context.getWorld(), context.getPlayer(), context.getHand());
         }
         return ActionResultType.FAIL;
+    }
+
+    public static void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
+        PocketStorage.LOGGER.info("Punch event, but this time from within the itemstack..." + event.toString());
     }
 
     private void openGUI(World worldIn, PlayerEntity playerIn, Hand handIn) {

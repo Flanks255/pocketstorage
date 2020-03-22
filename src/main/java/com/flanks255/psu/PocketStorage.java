@@ -11,16 +11,20 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Timer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -54,6 +58,7 @@ public class PocketStorage
 
         MinecraftForge.EVENT_BUS.addListener(this::pickupEvent);
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.addListener(this::interactEvent);
     }
 
     private void pickupEvent(EntityItemPickupEvent event) {
@@ -66,6 +71,13 @@ public class PocketStorage
                 event.setResult(Event.Result.ALLOW);
                 return;
             }
+        }
+    }
+
+    private void interactEvent(PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getSide() == LogicalSide.SERVER && event.getItemStack().getItem() instanceof PocketStorageUnit && event.getPlayer().isSneaking()) {
+            PocketStorageUnit.onLeftClick(event);
+            event.setCanceled(true);
         }
     }
 
