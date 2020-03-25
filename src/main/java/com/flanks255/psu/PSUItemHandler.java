@@ -74,7 +74,7 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
     }
 
     public ItemStack insertItemSlotless(@Nonnull ItemStack stack, boolean allowEmpty) {
-        if (stack.isEmpty())
+        if (stack.isEmpty() || stack.hasTag())
             return ItemStack.EMPTY;
         load();
         for (int i = 0; i < slots.size(); i++) {
