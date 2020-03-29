@@ -145,6 +145,24 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
         }
         public int slot;
 
+        public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
+            if (this.active && this.visible) {
+                if (p_mouseClicked_5_ == 0 && this.clicked(p_mouseClicked_1_,p_mouseClicked_3_)) {
+                        //this.playDownSound(Minecraft.getInstance().getSoundHandler());
+                        this.onClick(p_mouseClicked_1_, p_mouseClicked_3_);
+                        return true;
+                } else if (p_mouseClicked_5_ == 1 && this.clicked(p_mouseClicked_1_,p_mouseClicked_3_)) {
+                    PocketStorage.network.sendToServer(new SlotClickMessage(slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true));
+                    container.networkSlotClick(slot+scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true);
+                    return true;
+                }
+
+                return false;
+            } else {
+                return false;
+            }
+        }
+
         @Override
         public void renderToolTip(int mx, int my) {
             if (mx >= x && mx < x + width && my >= y && my < y + height ) {

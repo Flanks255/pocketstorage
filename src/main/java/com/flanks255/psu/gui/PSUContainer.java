@@ -88,7 +88,14 @@ public class PSUContainer extends Container {
                     playerinv.player.sendMessage(new StringTextComponent(I18n.format("pocketstorage.nodataitems")));
                     return;
                 }
-                if (!ctrl) {
+                if (rightClick) {
+                    ItemStack single = incoming.split(1);
+                    ItemStack remainder = handler.insertItem(slot, single, false);
+                    if (!remainder.isEmpty()) {
+                        incoming.grow(1);
+                    }
+                    playerinv.setItemStack(incoming);
+                } else if (!ctrl) {
                     playerinv.setItemStack(handler.insertItem(slot, incoming, false));
                 }
                 else {
@@ -104,6 +111,8 @@ public class PSUContainer extends Container {
             }
             else {
                 int extract = ctrl ? 1 : 64;
+                if (rightClick)
+                    extract = Math.min(handler.getStackInSlot(slot).getCount() / 2, 32);
                 if (!shift) {
                     ItemStack tmp = handler.extractItem(slot, extract, false);
                     if (!tmp.isEmpty()) {
