@@ -20,7 +20,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 public class PSUContainer extends Container {
 
     public PSUContainer(final int windowId, final PlayerInventory playerInventory) {
-        this(windowId, playerInventory.player.world, playerInventory.player.getPosition(), playerInventory, playerInventory.player);
+        this(windowId, playerInventory.player.world, playerInventory.player.getBlockPos(), playerInventory, playerInventory.player);
     }
     public PSUContainer(int windowId, World world, BlockPos pos, PlayerInventory playerInventory, PlayerEntity player) {
         super(type, windowId);
@@ -85,7 +85,7 @@ public class PSUContainer extends Container {
             if (!playerinv.getItemStack().isEmpty()) {
                 ItemStack incoming = playerinv.getItemStack();
                 if (incoming.hasTag() && playerinv.player.world.isRemote()) {
-                    playerinv.player.sendMessage(new StringTextComponent(I18n.format("pocketstorage.nodataitems")));
+                    playerinv.player.sendMessage(new StringTextComponent(I18n.format("pocketstorage.nodataitems")), playerinv.player.getUniqueID());
                     return;
                 }
                 if (rightClick) {
