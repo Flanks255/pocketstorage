@@ -51,7 +51,7 @@ minecraft {
     mappings channel: 'snapshot', version: '20200813-mixed-1.16.2'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -119,8 +119,8 @@ dependencies {
     //minecraft 'net.minecraftforge:forge:1.16.1-32.0.106'
     minecraft 'net.minecraftforge:forge:1.16.2-33.0.2'
 
-    //compileOnly fg.deobf("mezz.jei:jei-${jei_version}:api")
-    //runtimeOnly fg.deobf("mezz.jei:jei-${jei_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${jei_version}:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-${jei_version}")
     //compile fg.deobf(curse.resolve("storage-drawers",2887674))
     //compile fg.deobf(curse.resolve("the-one-probe",2887210))
 
