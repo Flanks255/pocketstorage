@@ -2,6 +2,7 @@ package com.flanks255.psu;
 
 import com.flanks255.psu.gui.PSUContainer;
 import com.flanks255.psu.gui.PSUGui;
+import com.flanks255.psu.items.PocketFluidUnit;
 import com.flanks255.psu.items.PocketStorageUnit;
 import com.flanks255.psu.network.PSUNetwork;
 import net.minecraft.block.Block;
@@ -49,6 +50,7 @@ public class PocketStorage
     public static final PocketStorageUnit PSU2 = new PocketStorageUnit("psu_2", 16, 0xFFF, Rarity.UNCOMMON);
     public static final PocketStorageUnit PSU3 = new PocketStorageUnit("psu_3", 32, 0xFFFF, Rarity.RARE);
     public static final PocketStorageUnit PSU4 = new PocketStorageUnit("psu_4", 64, 0xFFFFF, Rarity.EPIC);
+    //public static final PocketFluidUnit PFU1 = new PocketFluidUnit("pfu_1");
 
 
     public PocketStorage() {
@@ -108,6 +110,7 @@ public class PocketStorage
             itemRegistryEvent.getRegistry().register(PSU2.setName());
             itemRegistryEvent.getRegistry().register(PSU3.setName());
             itemRegistryEvent.getRegistry().register(PSU4.setName());
+            //itemRegistryEvent.getRegistry().register(PFU1.setName());
         }
 
         @SubscribeEvent

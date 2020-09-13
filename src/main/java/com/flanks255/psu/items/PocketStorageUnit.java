@@ -11,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -125,7 +126,7 @@ public class PocketStorageUnit extends Item {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         openGUI(worldIn,playerIn,handIn);
-        return super.onItemRightClick(worldIn, playerIn, handIn);
+        return ActionResult.success(playerIn.getHeldItem(handIn));
     }
 
     @Override
@@ -205,18 +206,8 @@ public class PocketStorageUnit extends Item {
 
     private void openGUI(World worldIn, PlayerEntity playerIn, Hand handIn) {
         if (!worldIn.isRemote) {
-            playerIn.openContainer((new INamedContainerProvider() {
-                @Override
-                public ITextComponent getDisplayName() {
-                    return playerIn.getHeldItem(handIn).getDisplayName();
-                }
-
-                @Nullable
-                @Override
-                public Container createMenu(int p_createMenu_1_, PlayerInventory p_createMenu_2_, PlayerEntity p_createMenu_3_) {
-                    return new PSUContainer(p_createMenu_1_, p_createMenu_3_.world, p_createMenu_3_.getBlockPos(), p_createMenu_2_, p_createMenu_3_);
-                }
-            }));
+            playerIn.openContainer(new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) ->
+                    new PSUContainer(windowId, playerInventory), playerIn.getHeldItem(handIn).getDisplayName()));
         }
     }
 
