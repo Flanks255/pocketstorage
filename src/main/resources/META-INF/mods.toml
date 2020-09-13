@@ -7,7 +7,7 @@
 modLoader="javafml" #mandatory
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
 license="MIT"
-loaderVersion="[34,)" #mandatory (26 is current forge version)
+loaderVersion="[33,)" #mandatory (26 is current forge version)
 # A URL to refer people to when problems occur with this mod
 #issueTrackerURL="" #optional
 # A list of mods - how many allowed here is determined by the individual mod loader
@@ -32,21 +32,21 @@ authors="Flanks255" #optional
 description='''
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.examplemod]] #optional
+[[dependencies.pocketstorage]] #optional
     # the modid of the dependency
     modId="forge" #mandatory
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[34,)" #mandatory
+    versionRange="[33,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
     side="BOTH"
 # Here's another dependency
-[[dependencies.examplemod]]
+[[dependencies.pocketstorage]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.3]"
+    versionRange="[1.16.2,)"
     ordering="NONE"
     side="BOTH"

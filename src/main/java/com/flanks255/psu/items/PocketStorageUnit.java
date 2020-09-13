@@ -44,19 +44,12 @@ public class PocketStorageUnit extends Item {
     private long lastInteractMills = 0;
     private BlockPos lastInteractPos = new BlockPos(0,0,0);
 
-    public PocketStorageUnit(String name, int size, int capacity, Rarity rarity) {
+    public PocketStorageUnit(int size, int capacity, Rarity rarity) {
         super(new Item.Properties().maxStackSize(1).group(ItemGroup.TOOLS));
-        this.name = name;
         this.size = size;
         this.rarity = rarity;
         this.capacity = capacity;
     }
-
-    public PocketStorageUnit setName() {
-        setRegistryName(new ResourceLocation(PocketStorage.MODID, name));
-        return this;
-    }
-
     @Override
     public Rarity getRarity(ItemStack p_77613_1_) {
         return rarity;

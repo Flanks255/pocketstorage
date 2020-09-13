@@ -23,9 +23,11 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -34,6 +36,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,17 +50,21 @@ public class PocketStorage
     public static final String MODID = "pocketstorage";
     public static SimpleChannel network;
 
-    public static final PocketStorageUnit PSU1 = new PocketStorageUnit("psu_1", 8, 0xFF, Rarity.COMMON);
-    public static final PocketStorageUnit PSU2 = new PocketStorageUnit("psu_2", 16, 0xFFF, Rarity.UNCOMMON);
-    public static final PocketStorageUnit PSU3 = new PocketStorageUnit("psu_3", 32, 0xFFFF, Rarity.RARE);
-    public static final PocketStorageUnit PSU4 = new PocketStorageUnit("psu_4", 64, 0xFFFFF, Rarity.EPIC);
+    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+
+    public static final RegistryObject<Item> PSU1 = ITEMS.register("psu_1", () -> new PocketStorageUnit(8, 0xFF, Rarity.COMMON));
+    public static final RegistryObject<Item> PSU2 = ITEMS.register("psu_2", () -> new PocketStorageUnit( 16, 0xFFF, Rarity.UNCOMMON));
+    public static final RegistryObject<Item> PSU3 = ITEMS.register("psu_3", () -> new PocketStorageUnit( 32, 0xFFFF, Rarity.RARE));
+    public static final RegistryObject<Item> PSU4 = ITEMS.register("psu_4", () -> new PocketStorageUnit( 64, 0xFFFFF, Rarity.EPIC));
     //public static final PocketFluidUnit PFU1 = new PocketFluidUnit("pfu_1");
 
 
     public PocketStorage() {
-        // Register the setup method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        ITEMS.register(bus);
+        bus.addListener(this::setup);
+        bus.addListener(this::doClientStuff);
 
         MinecraftForge.EVENT_BUS.addListener(this::pickupEvent);
         MinecraftForge.EVENT_BUS.register(this);
@@ -104,14 +112,6 @@ public class PocketStorage
     // Event bus for receiving Registry Events)
     @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
-        @SubscribeEvent
-        public static void onItemRegistry(final RegistryEvent.Register<Item> itemRegistryEvent) {
-            itemRegistryEvent.getRegistry().register(PSU1.setName());
-            itemRegistryEvent.getRegistry().register(PSU2.setName());
-            itemRegistryEvent.getRegistry().register(PSU3.setName());
-            itemRegistryEvent.getRegistry().register(PSU4.setName());
-            //itemRegistryEvent.getRegistry().register(PFU1.setName());
-        }
 
         @SubscribeEvent
         public static void onContainerRegistry(final RegistryEvent.Register<ContainerType<?>> containerRegistryEvent) {
