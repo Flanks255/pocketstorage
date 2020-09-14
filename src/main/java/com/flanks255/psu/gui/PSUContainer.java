@@ -1,6 +1,7 @@
 package com.flanks255.psu.gui;
 
 import com.flanks255.psu.PSUItemHandler;
+import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.items.PocketStorageUnit;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,6 +11,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -19,11 +21,11 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 public class PSUContainer extends Container {
 
-    public PSUContainer(final int windowId, final PlayerInventory playerInventory) {
+    public PSUContainer(final int windowId, final PlayerInventory playerInventory, PacketBuffer extra) {
         this(windowId, playerInventory.player.world, playerInventory.player.getBlockPos(), playerInventory, playerInventory.player);
     }
     public PSUContainer(int windowId, World world, BlockPos pos, PlayerInventory playerInventory, PlayerEntity player) {
-        super(type, windowId);
+        super(PocketStorage.PSUCONTAINER.get(), windowId);
 
         playerinv = playerInventory;
         ItemStack stack = findPSU(player);
@@ -43,7 +45,7 @@ public class PSUContainer extends Container {
         addPlayerSlots(playerInventory);
     }
 
-    public static final ContainerType type = new ContainerType<>(PSUContainer::new).setRegistryName("psu_container");
+    //public static final ContainerType type = new ContainerType<>(PSUContainer::new).setRegistryName("psu_container");
     public String itemKey;
     public PSUItemHandler handler;
     private PlayerInventory playerinv;

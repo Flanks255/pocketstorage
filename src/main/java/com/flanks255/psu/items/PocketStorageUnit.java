@@ -200,7 +200,7 @@ public class PocketStorageUnit extends Item {
     private void openGUI(World worldIn, PlayerEntity playerIn, Hand handIn) {
         if (!worldIn.isRemote) {
             playerIn.openContainer(new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) ->
-                    new PSUContainer(windowId, playerInventory), playerIn.getHeldItem(handIn).getDisplayName()));
+                    new PSUContainer(windowId, playerInventory, null), playerIn.getHeldItem(handIn).getDisplayName()));
         }
     }
 

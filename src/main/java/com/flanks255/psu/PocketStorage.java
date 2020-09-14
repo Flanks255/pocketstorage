@@ -18,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Timer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -51,6 +52,8 @@ public class PocketStorage
     public static SimpleChannel network;
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+    private static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
+    private static final DeferredRegister<IRecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
 
     public static final RegistryObject<Item> PSU1 = ITEMS.register("psu_1", () -> new PocketStorageUnit(8, 0xFF, Rarity.COMMON));
     public static final RegistryObject<Item> PSU2 = ITEMS.register("psu_2", () -> new PocketStorageUnit( 16, 0xFFF, Rarity.UNCOMMON));
@@ -58,11 +61,18 @@ public class PocketStorage
     public static final RegistryObject<Item> PSU4 = ITEMS.register("psu_4", () -> new PocketStorageUnit( 64, 0xFFFFF, Rarity.EPIC));
     //public static final PocketFluidUnit PFU1 = new PocketFluidUnit("pfu_1");
 
+    public static final RegistryObject<ContainerType<PSUContainer>> PSUCONTAINER = CONTAINERS.register("psu_container", () -> IForgeContainerType.create(PSUContainer::new));
+
+    public static final RegistryObject<IRecipeSerializer<CopyDataRecipe>> UPGRADE_RECIPE = RECIPES.register("data_upgrade", CopyDataRecipe.Serializer::new);
+
 
     public PocketStorage() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ITEMS.register(bus);
+        CONTAINERS.register(bus);
+        RECIPES.register(bus);
+
         bus.addListener(this::setup);
         bus.addListener(this::doClientStuff);
 
@@ -99,27 +109,6 @@ public class PocketStorage
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        ScreenManager.registerFactory(PSUContainer.type, PSUGui::new);
-    }
-
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
-        // do something when the server starts
-    }
-
-    // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
-    // Event bus for receiving Registry Events)
-    @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents {
-
-        @SubscribeEvent
-        public static void onContainerRegistry(final RegistryEvent.Register<ContainerType<?>> containerRegistryEvent) {
-            containerRegistryEvent.getRegistry().register(PSUContainer.type);
-        }
-        @SubscribeEvent
-        public static void onRecipeRegistry(final RegistryEvent.Register<IRecipeSerializer<?>> event) {
-            event.getRegistry().register(new CopyDataRecipe.Serializer().setRegistryName(new ResourceLocation(MODID, "data_upgrade")));
-        }
+        ScreenManager.registerFactory(PSUCONTAINER.get(), PSUGui::new);
     }
 }
