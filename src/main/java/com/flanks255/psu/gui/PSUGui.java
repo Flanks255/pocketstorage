@@ -162,9 +162,9 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
 
         @Override
         public void renderToolTip(MatrixStack mStack, int mx, int my) {
-            if (mx >= x && mx < x + width && my >= y && my < y + height ) {
+            if (mx >= x && mx < x + width && my >= y && my < y + height && container != null && container.handler != null) {
                 ItemStack stack = container.handler.getStackInSlot(slot + scroll);
-                if(stack != null && !stack.isEmpty()) {
+                if(!stack.isEmpty()) {
                     net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(stack);
                     List<ITextComponent> tooltip = getTooltipFromItem(stack);
                     tooltip.add(new StringTextComponent(I18n.format("pocketstorage.count",stack.getCount())));

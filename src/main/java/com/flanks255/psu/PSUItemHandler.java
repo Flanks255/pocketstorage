@@ -1,6 +1,5 @@
 package com.flanks255.psu;
 
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -73,7 +72,7 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
         save();
     }
 
-    public ItemStack insertItemSlotless(@Nonnull ItemStack stack, boolean allowEmpty) {
+    public ItemStack insertItemSlotless(@Nonnull ItemStack stack, boolean allowEmpty, boolean allowVoid) {
         if (stack.isEmpty() || stack.hasTag())
             return ItemStack.EMPTY;
         load();
@@ -81,10 +80,11 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
             if (ItemHandlerHelper.canItemStacksStack(slots.get(i).getStack(),stack)) {
                 //Found matching item, insert it.
                 PSUSlot tmp = slots.get(i);
+                int remainder = allowVoid ? 0 : Math.max(tmp.getCount() + stack.getCount() - slotCapacity, 0);
                 tmp.setCount(Math.min(tmp.getCount() + stack.getCount(), slotCapacity));
                 save();
                 ItemStack tmpstack = stack.copy();
-                stack.setCount(0);
+                stack.setCount(remainder);
                 return tmpstack;
             }
         }

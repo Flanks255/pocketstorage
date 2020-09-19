@@ -8,21 +8,10 @@ modLoader="javafml" #mandatory
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
 license="MIT"
 loaderVersion="[33,)" #mandatory (26 is current forge version)
-# A URL to refer people to when problems occur with this mod
-#issueTrackerURL="" #optional
-# A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
-# The modid of the mod
-modId="pocketstorage" #mandatory
-# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-version="${file.jarVersion}" #mandatory
- # A display name for the mod
-displayName="Pocket Storage Unit" #mandatory
-# A URL to query for updates for this mod. See the JSON update specification <here>
-#updateJSONURL="" #optional
-# A URL for the "homepage" for this mod, displayed in the mod UI
-#displayURL="" #optional
-# A file name (in the root of the mod JAR) containing a logo for display
+modId="pocketstorage"
+version="${file.jarVersion}"
+displayName="Pocket Storage"
 logoFile="logo.png" #optional
 # A text field displayed in the mod UI
 credits="" #optional
@@ -31,19 +20,12 @@ authors="Flanks255" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
 '''
-# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.pocketstorage]] #optional
-    # the modid of the dependency
-    modId="forge" #mandatory
-    # Does this dependency have to exist - if not, ordering below must be specified
-    mandatory=true #mandatory
-    # The version range of the dependency
-    versionRange="[33,)" #mandatory
-    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+[[dependencies.pocketstorage]]
+    modId="forge"
+    mandatory=true
+    versionRange="[33,)"
     ordering="NONE"
-    # Side this dependency is applied on - BOTH, CLIENT or SERVER
     side="BOTH"
-# Here's another dependency
 [[dependencies.pocketstorage]]
     modId="minecraft"
     mandatory=true

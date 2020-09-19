@@ -2,15 +2,11 @@ package com.flanks255.psu.items;
 
 import com.flanks255.psu.PSUItemHandler;
 import com.flanks255.psu.gui.PSUContainer;
-import com.flanks255.psu.PocketStorage;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
@@ -187,7 +183,7 @@ public class PocketStorageUnit extends Item {
                                     continue;
                                 if (((PSUItemHandler) my).hasItem(stack)) {
                                     ItemStack newstack = chest.extractItem(i, stack.getCount(), false);
-                                    ((PSUItemHandler) my).insertItemSlotless(newstack, false);
+                                    ((PSUItemHandler) my).insertItemSlotless(newstack, false, false);
                                 }
                             }
                         }

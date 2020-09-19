@@ -8,7 +8,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -146,7 +145,7 @@ public class PSUContainer extends Container {
             Slot slot = this.inventorySlots.get(index);
 
             if (slot != null && slot.getHasStack()) {
-                return handler.insertItemSlotless(slot.getStack(), true);
+                return handler.insertItemSlotless(slot.getStack(), true, true);
             }
             return ItemStack.EMPTY;
         }
