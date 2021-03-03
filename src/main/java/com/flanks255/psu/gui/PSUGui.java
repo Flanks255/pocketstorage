@@ -98,11 +98,11 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
     @Override
     public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(stack);
-        super.render(stack, mouseX, mouseY, partialTicks);
         for (IGuiEventListener listener : children) {
             if (listener instanceof GUISlot)
                 ((IRenderable) listener).render(stack, mouseX, mouseY, partialTicks);
         }
+        super.render(stack, mouseX, mouseY, partialTicks);
         this.drawMouseoverTooltip(stack, mouseX, mouseY);
     }
 
@@ -197,8 +197,9 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-            if (hovered)
-                fill(mStack, x, y-1, x + width, y + height, -2130706433);
+            if (hovered) {
+                fill(mStack, x, y - 1, x + width, y + height, -2130706433);
+            }
 
             if (container.handler != null) {
                 ItemStack tmp = container.handler.getStackInSlot(slot + scroll);

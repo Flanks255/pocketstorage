@@ -115,7 +115,7 @@ public class PocketStorageUnit extends Item {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         openGUI(worldIn,playerIn,handIn);
-        return ActionResult.success(playerIn.getHeldItem(handIn));
+        return ActionResult.resultSuccess(playerIn.getHeldItem(handIn));
     }
 
     @Override
@@ -194,7 +194,7 @@ public class PocketStorageUnit extends Item {
     }
 
     private void openGUI(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        if (!worldIn.isRemote) {
+        if (!worldIn.isRemote && playerIn.getHeldItem(handIn).getItem() instanceof PocketStorageUnit) {
             playerIn.openContainer(new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) ->
                     new PSUContainer(windowId, playerInventory, null), playerIn.getHeldItem(handIn).getDisplayName()));
         }
