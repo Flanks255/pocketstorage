@@ -1,5 +1,6 @@
 package com.flanks255.psu;
 
+import com.flanks255.psu.data.Generator;
 import com.flanks255.psu.gui.PSUContainer;
 import com.flanks255.psu.gui.PSUGui;
 import com.flanks255.psu.items.PocketStorageUnit;
@@ -34,7 +35,7 @@ public class PocketStorage
     public static final String MODID = "pocketstorage";
     public static SimpleChannel network;
 
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     private static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
     private static final DeferredRegister<IRecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
 
@@ -42,7 +43,6 @@ public class PocketStorage
     public static final RegistryObject<Item> PSU2 = ITEMS.register("psu_2", () -> new PocketStorageUnit( 16, 0xFFF, Rarity.UNCOMMON));
     public static final RegistryObject<Item> PSU3 = ITEMS.register("psu_3", () -> new PocketStorageUnit( 32, 0xFFFF, Rarity.RARE));
     public static final RegistryObject<Item> PSU4 = ITEMS.register("psu_4", () -> new PocketStorageUnit( 64, 0xFFFFF, Rarity.EPIC));
-    //public static final PocketFluidUnit PFU1 = new PocketFluidUnit("pfu_1");
 
     public static final RegistryObject<ContainerType<PSUContainer>> PSUCONTAINER = CONTAINERS.register("psu_container", () -> IForgeContainerType.create(PSUContainer::new));
 
@@ -55,6 +55,8 @@ public class PocketStorage
         ITEMS.register(bus);
         CONTAINERS.register(bus);
         RECIPES.register(bus);
+
+        bus.addListener(Generator::gatherData);
 
         bus.addListener(this::setup);
         bus.addListener(this::doClientStuff);

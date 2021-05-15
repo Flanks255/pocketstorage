@@ -119,6 +119,11 @@ public class PocketStorageUnit extends Item {
     }
 
     @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return false;
+    }
+
+    @Override
     public ActionResultType onItemUse(ItemUseContext context) {
         if (!context.getWorld().isRemote) {
             World world = context.getWorld();

@@ -21,7 +21,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 public class PSUContainer extends Container {
 
     public PSUContainer(final int windowId, final PlayerInventory playerInventory, PacketBuffer extra) {
-        this(windowId, playerInventory.player.world, playerInventory.player.getBlockPos(), playerInventory, playerInventory.player);
+        this(windowId, playerInventory.player.world, playerInventory.player.getPosition(), playerInventory, playerInventory.player);
     }
     public PSUContainer(int windowId, World world, BlockPos pos, PlayerInventory playerInventory, PlayerEntity player) {
         super(PocketStorage.PSUCONTAINER.get(), windowId);
