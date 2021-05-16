@@ -3,10 +3,7 @@ package com.flanks255.psu.network;
 import com.flanks255.psu.gui.PSUContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.function.Supplier;
 
@@ -17,10 +14,10 @@ public class SlotClickMessage {
         ctrl = ctrlIn;
         rightClick = rightClickIn;
     }
-    int slotID;
-    boolean shift;
-    boolean ctrl;
-    boolean rightClick;
+    private final int slotID;
+    private final boolean shift;
+    private final boolean ctrl;
+    private final boolean rightClick;
 
     public static SlotClickMessage decode(final PacketBuffer buffer) {
         return new SlotClickMessage(buffer.readInt(),buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean());

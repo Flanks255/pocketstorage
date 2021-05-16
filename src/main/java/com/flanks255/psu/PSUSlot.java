@@ -34,13 +34,11 @@ class PSUSlot {
         return count;
     }
 
-    public int decrementCount(int dec) {
+    public void decrementCount(int dec) {
         count -= dec;
-        return count;
     }
-    public int incrementCount(int inc, int cap) {
+    public void incrementCount(int inc, int cap) {
         count = Math.min(count + inc, cap);
-        return count;
     }
     public int incrementCount(int inc) {
         count += inc;

@@ -57,7 +57,7 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
         addButton(new ScrollButton(guiLeft + 152,guiTop + 55, 16,37, false, (A) ->  scroll = scroll >= container.handler.getSlots()-8?container.handler.getSlots()-8:scroll + 4 ));
     }
 
-    private ResourceLocation GUI = new ResourceLocation(PocketStorage.MODID, "textures/gui/psugui.png");
+    private final ResourceLocation GUI = new ResourceLocation(PocketStorage.MODID, "textures/gui/psugui.png");
     private int scroll = 0;
 
     @Override
@@ -80,10 +80,10 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
         BufferBuilder buffer = tess.getBuffer();
 
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-        buffer.pos((double)x + 0, (double) y + height, (double) z).tex(tx,ty + th).endVertex();
-        buffer.pos((double) x + width,(double) y + height, (double) z).tex(tx + tw,ty + th).endVertex();
-        buffer.pos((double) x + width, (double) y + 0, (double) z).tex(tx + tw,ty).endVertex();
-        buffer.pos((double) x + 0, (double) y + 0, (double) z).tex(tx,ty).endVertex();
+        buffer.pos((double)x + 0, (double) y + height, z).tex(tx,ty + th).endVertex();
+        buffer.pos((double) x + width,(double) y + height, z).tex(tx + tw,ty + th).endVertex();
+        buffer.pos((double) x + width, (double) y + 0, z).tex(tx + tw,ty).endVertex();
+        buffer.pos((double) x + 0, (double) y + 0, z).tex(tx,ty).endVertex();
 
         tess.draw();
     }
@@ -119,7 +119,7 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
             super(x,y,width,height,new StringTextComponent(""),pressable);
             up = upIn;
         }
-        boolean up;
+        private final boolean up;
         private final ResourceLocation TEX = new ResourceLocation(PocketStorage.MODID, "textures/gui/buttons.png");
 
 
@@ -139,7 +139,7 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
             super(x,y,width,height,new StringTextComponent(""), pressable);
             this.slot = slotIn;
         }
-        public int slot;
+        public final int slot;
 
         public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
             if (this.active && this.visible) {
@@ -152,11 +152,8 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
                     container.networkSlotClick(slot+scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true);
                     return true;
                 }
-
-                return false;
-            } else {
-                return false;
             }
+            return false;
         }
 
         @Override

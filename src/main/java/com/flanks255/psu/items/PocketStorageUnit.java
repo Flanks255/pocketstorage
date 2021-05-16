@@ -32,10 +32,10 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class PocketStorageUnit extends Item {
-    private int size;
-    private Rarity rarity;
+    private final int size;
+    private final Rarity rarity;
     private String name;
-    private int capacity;
+    private final int capacity;
 
     private long lastInteractMills = 0;
     private BlockPos lastInteractPos = new BlockPos(0,0,0);
@@ -208,15 +208,12 @@ public class PocketStorageUnit extends Item {
 
     class PSUCaps implements ICapabilityProvider {
         public PSUCaps(ItemStack stack) {
-            this.itemstack = stack;
-            inventory = new PSUItemHandler(itemstack, size, capacity);
+            inventory = new PSUItemHandler(stack, size, capacity);
             lazyOptional = LazyOptional.of(() -> inventory);
         }
 
-        private ItemStack itemstack;
-
-        private PSUItemHandler inventory;
-        private LazyOptional<IItemHandler> lazyOptional;
+        private final PSUItemHandler inventory;
+        private final LazyOptional<IItemHandler> lazyOptional;
 
         @Nonnull
         @Override

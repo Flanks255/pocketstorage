@@ -47,7 +47,7 @@ public class PSUContainer extends Container {
     //public static final ContainerType type = new ContainerType<>(PSUContainer::new).setRegistryName("psu_container");
     public String itemKey;
     public PSUItemHandler handler;
-    private PlayerInventory playerinv;
+    private final PlayerInventory playerinv;
     protected int slotID;
 
     public ItemStack findPSU(PlayerEntity playerIn) {
@@ -127,7 +127,6 @@ public class PSUContainer extends Container {
                     if (!tmp.isEmpty()) {
                         ItemHandlerHelper.giveItemToPlayer(playerinv.player, tmp);
                     }
-                    return;
                 }
             }
         }

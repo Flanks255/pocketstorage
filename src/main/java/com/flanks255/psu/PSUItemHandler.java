@@ -21,10 +21,10 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
         load();
     }
 
-    private NonNullList<PSUSlot> slots;
-    private ItemStack itemStack;
-    private int slotCount;
-    private int slotCapacity;
+    private final NonNullList<PSUSlot> slots;
+    private final ItemStack itemStack;
+    private final int slotCount;
+    private final int slotCapacity;
 
     void checkIndex(int slot) {
         if (slot < 0 || slot >= slots.size())

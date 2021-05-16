@@ -18,7 +18,7 @@ public class PSUItemTags extends ItemTagsProvider {
     }
     //forge:holds_items
 
-    public static ITag.INamedTag<Item> HOLDS_ITEMS = ItemTags.makeWrapperTag(new ResourceLocation("forge", "holds_items").toString());
+    public static final ITag.INamedTag<Item> HOLDS_ITEMS = ItemTags.makeWrapperTag(new ResourceLocation("forge", "holds_items").toString());
 
     @Override
     protected void registerTags() {
