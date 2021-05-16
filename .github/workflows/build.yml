@@ -8,7 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: !contains(github.event.head_commit.message, '[ciskip]')
+    if:
+      !contains(github.event.head_commit.message, '[ciskip]')
     steps:
       - uses: actions/cgache@v2
         with:
