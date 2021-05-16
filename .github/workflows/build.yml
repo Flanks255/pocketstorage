@@ -11,7 +11,7 @@ jobs:
     if: |
       !contains(github.event.head_commit.message, '[ciskip]')
     steps:
-      - uses: actions/cgache@v2
+      - uses: actions/cache@v2
         with:
           path: |
             ~/.gradle/caches
