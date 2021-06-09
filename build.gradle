@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url = 'https://forge.modpacks.ch/maven' }
+        maven { url = 'https://maven.creeperhost.net/' }
         maven { url = 'https://maven.minecraftforge.net' }
         maven { url = "https://plugins.gradle.org/m2/" }
         mavenCentral()
@@ -88,6 +88,10 @@ dependencies {
     compile fg.deobf("curse.maven:BUILDINGGADGETS-298187:3205295")
     compile fg.deobf("curse.maven:NBTEDIT-247580:3062106")
     compile fg.deobf("curse.maven:STORAGEDRAWERS-223852:3180569")
+    compile fg.deobf("curse.maven:MCJTYLIB-233105:3236516")
+    compile fg.deobf("curse.maven:BASE-326041:3206945")
+    compile fg.deobf("curse.maven:BUILDER-347706:3302323")
+    compile fg.deobf("curse.maven:POWER-290209:3087309")
 }
 
 jar {

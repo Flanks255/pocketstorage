@@ -22,9 +22,9 @@ public class PSUItemTags extends ItemTagsProvider {
 
     @Override
     protected void registerTags() {
-        this.getOrCreateBuilder(HOLDS_ITEMS).addOptional(new ResourceLocation(PocketStorage.MODID, "psu_1"));
-        this.getOrCreateBuilder(HOLDS_ITEMS).addOptional(new ResourceLocation(PocketStorage.MODID, "psu_2"));
-        this.getOrCreateBuilder(HOLDS_ITEMS).addOptional(new ResourceLocation(PocketStorage.MODID, "psu_3"));
-        this.getOrCreateBuilder(HOLDS_ITEMS).addOptional(new ResourceLocation(PocketStorage.MODID, "psu_4"));
+        this.getOrCreateBuilder(HOLDS_ITEMS).add(PocketStorage.PSU1.get());
+        this.getOrCreateBuilder(HOLDS_ITEMS).add(PocketStorage.PSU2.get());
+        this.getOrCreateBuilder(HOLDS_ITEMS).add(PocketStorage.PSU3.get());
+        this.getOrCreateBuilder(HOLDS_ITEMS).add(PocketStorage.PSU4.get());
     }
 }

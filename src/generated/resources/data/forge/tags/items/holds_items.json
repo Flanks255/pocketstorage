@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "pocketstorage:psu_1",
+    "pocketstorage:psu_2",
+    "pocketstorage:psu_3",
+    "pocketstorage:psu_4"
+  ]
+}
