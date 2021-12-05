@@ -41,7 +41,7 @@ public class PocketStorageUnit extends Item {
     private BlockPos lastInteractPos = new BlockPos(0,0,0);
 
     public PocketStorageUnit(int size, int capacity, Rarity rarity) {
-        super(new Item.Properties().maxStackSize(1).group(ItemGroup.TOOLS));
+        super(new Item.Properties().stacksTo(1).tab(ItemGroup.TAB_TOOLS));
         this.size = size;
         this.rarity = rarity;
         this.capacity = capacity;
@@ -52,28 +52,28 @@ public class PocketStorageUnit extends Item {
     }
 
     private boolean hasTranslation(String key) {
-        return !I18n.format(key).equals(key);
+        return !I18n.get(key).equals(key);
     }
 
     private String fallbackString(String key, String fallback) {
-        String tmp = I18n.format(key);
+        String tmp = I18n.get(key);
         return tmp.equals(key)?fallback:tmp;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
-        String translationKey = getTranslationKey();
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        String translationKey = getDescriptionId();
 
         if (Screen.hasShiftDown()) {
-            tooltip.add(new StringTextComponent(I18n.format( translationKey + ".info", size, capacity)));
+            tooltip.add(new StringTextComponent(I18n.get( translationKey + ".info", size, capacity)));
             if (hasTranslation(translationKey + ".info2"))
-                tooltip.add(new StringTextComponent( I18n.format(translationKey + ".info2")));
+                tooltip.add(new StringTextComponent( I18n.get(translationKey + ".info2")));
             if (hasTranslation(translationKey + ".info3"))
-                tooltip.add(new StringTextComponent( I18n.format(translationKey + ".info3")));
-            tooltip.add(new StringTextComponent(I18n.format("pocketstorage.deposit")));
-            tooltip.add(new StringTextComponent(I18n.format("pocketstorage.withdraw")));
+                tooltip.add(new StringTextComponent( I18n.get(translationKey + ".info3")));
+            tooltip.add(new StringTextComponent(I18n.get("pocketstorage.deposit")));
+            tooltip.add(new StringTextComponent(I18n.get("pocketstorage.withdraw")));
         }
         else {
             tooltip.add(new StringTextComponent( fallbackString("pocketstorage.shift", "Press <§6§oShift§r> for info.") ));
@@ -113,9 +113,9 @@ public class PocketStorageUnit extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
         openGUI(worldIn,playerIn,handIn);
-        return ActionResult.resultSuccess(playerIn.getHeldItem(handIn));
+        return ActionResult.success(playerIn.getItemInHand(handIn));
     }
 
     @Override
@@ -124,14 +124,14 @@ public class PocketStorageUnit extends Item {
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
-        if (!context.getWorld().isRemote) {
-            World world = context.getWorld();
-            BlockState bs = world.getBlockState(context.getPos());
+    public ActionResultType useOn(ItemUseContext context) {
+        if (!context.getLevel().isClientSide) {
+            World world = context.getLevel();
+            BlockState bs = world.getBlockState(context.getClickedPos());
             if (bs.hasTileEntity()) {
-                TileEntity te = world.getTileEntity(context.getPos());
+                TileEntity te = world.getBlockEntity(context.getClickedPos());
                 LazyOptional<IItemHandler> chestOptional = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
-                LazyOptional<IItemHandler> myOptional = context.getItem().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                LazyOptional<IItemHandler> myOptional = context.getItemInHand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
                     myOptional.ifPresent((my) -> {
                         chestOptional.ifPresent((chest) -> {
                             if (my instanceof PSUItemHandler) {
@@ -156,7 +156,7 @@ public class PocketStorageUnit extends Item {
                         });
                     });
             } else
-                openGUI(context.getWorld(), context.getPlayer(), context.getHand());
+                openGUI(context.getLevel(), context.getPlayer(), context.getHand());
         }
         return ActionResultType.FAIL;
     }
@@ -171,13 +171,13 @@ public class PocketStorageUnit extends Item {
     }
 
     private void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
-        if (!event.getWorld().isRemote) {
+        if (!event.getWorld().isClientSide) {
             World world = event.getWorld();
             BlockState bs = world.getBlockState(event.getPos());
             if (bs.hasTileEntity()) {
-                TileEntity te = world.getTileEntity(event.getPos());
+                TileEntity te = world.getBlockEntity(event.getPos());
                 LazyOptional<IItemHandler> chestOptional = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
-                LazyOptional<IItemHandler> myOptional = event.getPlayer().getHeldItemMainhand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                LazyOptional<IItemHandler> myOptional = event.getPlayer().getMainHandItem().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
                 myOptional.ifPresent((my) -> {
                     chestOptional.ifPresent((chest) -> {
                         if (my instanceof PSUItemHandler) {
@@ -199,9 +199,9 @@ public class PocketStorageUnit extends Item {
     }
 
     private void openGUI(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        if (!worldIn.isRemote && playerIn.getHeldItem(handIn).getItem() instanceof PocketStorageUnit) {
-            playerIn.openContainer(new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) ->
-                    new PSUContainer(windowId, playerInventory, null), playerIn.getHeldItem(handIn).getDisplayName()));
+        if (!worldIn.isClientSide && playerIn.getItemInHand(handIn).getItem() instanceof PocketStorageUnit) {
+            playerIn.openMenu(new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) ->
+                    new PSUContainer(windowId, playerInventory, null), playerIn.getItemInHand(handIn).getHoverName()));
         }
     }
 

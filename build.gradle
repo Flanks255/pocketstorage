@@ -2,15 +2,18 @@ buildscript {
     repositories {
         maven { url = 'https://maven.creeperhost.net/' }
         maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://maven.parchmentmc.org' }
         maven { url = "https://plugins.gradle.org/m2/" }
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath 'org.parchmentmc:librarian:1.+'
         classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: "com.matthewprenger.cursegradle"
@@ -22,22 +25,19 @@ repositories {
 }
 
 def ENV = System.getenv()
-version = "${mod_version}-build.${ENV.GITHUB_RUN_NUMBER ?: 9999}"
+version = "${minecraft_version}-${mod_version}-build.${ENV.GITHUB_RUN_NUMBER ?: 9999}"
 group = 'com.flanks255'
 archivesBaseName = 'pocketstorage'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 minecraft {
-    mappings channel: 'snapshot', version: "$mappings_version"
+    mappings channel: 'parchment', version: "$mappings_version"
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
         client {
             workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
 
             mods {
                 pocketstorage {
@@ -49,8 +49,7 @@ minecraft {
         server {
             workingDirectory project.file('run')
 
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
+            args 'nogui'
 
             mods {
                 pocketstorage {
@@ -61,9 +60,6 @@ minecraft {
 
         data {
             workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
 
             args '--mod', 'pocketstorage', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
@@ -84,14 +80,10 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-${jei_version}:api")
     runtimeOnly fg.deobf("mezz.jei:jei-${jei_version}")
 
-    compile fg.deobf("curse.maven:TOP-245211:3157997")
-    compile fg.deobf("curse.maven:BUILDINGGADGETS-298187:3205295")
-    compile fg.deobf("curse.maven:NBTEDIT-247580:3062106")
-    compile fg.deobf("curse.maven:STORAGEDRAWERS-223852:3180569")
-    compile fg.deobf("curse.maven:MCJTYLIB-233105:3236516")
-    compile fg.deobf("curse.maven:BASE-326041:3206945")
-    compile fg.deobf("curse.maven:BUILDER-347706:3302323")
-    compile fg.deobf("curse.maven:POWER-290209:3087309")
+    compileOnly fg.deobf("curse.maven:TOP-245211:3157997")
+    compileOnly fg.deobf("curse.maven:BUILDINGGADGETS-298187:3205295")
+    compileOnly fg.deobf("curse.maven:NBTEDIT-247580:3062106")
+    compileOnly fg.deobf("curse.maven:STORAGEDRAWERS-223852:3180569")
 }
 
 jar {

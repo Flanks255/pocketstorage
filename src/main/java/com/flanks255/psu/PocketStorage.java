@@ -67,11 +67,11 @@ public class PocketStorage
     }
 
     private void pickupEvent(EntityItemPickupEvent event) {
-        if (event.getPlayer().openContainer instanceof PSUContainer || event.getPlayer().isSneaking())
+        if (event.getPlayer().containerMenu instanceof PSUContainer || event.getPlayer().isShiftKeyDown())
             return;
         PlayerInventory playerInv = event.getPlayer().inventory;
         for (int i = 0; i <= 35; i++) {
-            ItemStack stack = playerInv.getStackInSlot(i);
+            ItemStack stack = playerInv.getItem(i);
             if (stack.getItem() instanceof PocketStorageUnit && ((PocketStorageUnit) stack.getItem()).pickupEvent(event, stack)) {
                 event.setResult(Event.Result.ALLOW);
                 return;
@@ -80,7 +80,7 @@ public class PocketStorage
     }
 
     private void interactEvent(PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getItemStack().getItem() instanceof PocketStorageUnit && event.getPlayer().isSneaking()) {
+        if (event.getItemStack().getItem() instanceof PocketStorageUnit && event.getPlayer().isShiftKeyDown()) {
             if (event.getSide() == LogicalSide.SERVER)
                 ((PocketStorageUnit) event.getItemStack().getItem()).onLeftClickEvent(event);
             event.setCanceled(true);
@@ -94,6 +94,6 @@ public class PocketStorage
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        ScreenManager.registerFactory(PSUCONTAINER.get(), PSUGui::new);
+        ScreenManager.register(PSUCONTAINER.get(), PSUGui::new);
     }
 }

@@ -18,13 +18,13 @@ public class PSUItemTags extends ItemTagsProvider {
     }
     //forge:holds_items
 
-    public static final ITag.INamedTag<Item> HOLDS_ITEMS = ItemTags.makeWrapperTag(new ResourceLocation("forge", "holds_items").toString());
+    public static final ITag.INamedTag<Item> HOLDS_ITEMS = ItemTags.bind(new ResourceLocation("forge", "holds_items").toString());
 
     @Override
-    protected void registerTags() {
-        this.getOrCreateBuilder(HOLDS_ITEMS).add(PocketStorage.PSU1.get());
-        this.getOrCreateBuilder(HOLDS_ITEMS).add(PocketStorage.PSU2.get());
-        this.getOrCreateBuilder(HOLDS_ITEMS).add(PocketStorage.PSU3.get());
-        this.getOrCreateBuilder(HOLDS_ITEMS).add(PocketStorage.PSU4.get());
+    protected void addTags() {
+        this.tag(HOLDS_ITEMS).add(PocketStorage.PSU1.get());
+        this.tag(HOLDS_ITEMS).add(PocketStorage.PSU2.get());
+        this.tag(HOLDS_ITEMS).add(PocketStorage.PSU3.get());
+        this.tag(HOLDS_ITEMS).add(PocketStorage.PSU4.get());
     }
 }

@@ -34,8 +34,8 @@ public class SlotClickMessage {
         ctx.get().enqueueWork(
                 () -> {
                     PlayerEntity player = ctx.get().getSender();
-                    if (player.openContainer instanceof PSUContainer) {
-                        ((PSUContainer) player.openContainer).networkSlotClick(message.slotID, message.shift, message.ctrl, message.rightClick);
+                    if (player.containerMenu instanceof PSUContainer) {
+                        ((PSUContainer) player.containerMenu).networkSlotClick(message.slotID, message.shift, message.ctrl, message.rightClick);
                     }
                 });
         ctx.get().setPacketHandled(true);

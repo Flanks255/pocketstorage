@@ -21,17 +21,17 @@ public class CopyDataRecipe extends ShapedRecipe {
     }
 
     public CopyDataRecipe(ShapedRecipe shapedRecipe) {
-        super(shapedRecipe.getId(), shapedRecipe.getGroup(), shapedRecipe.getRecipeWidth(), shapedRecipe.getRecipeHeight(), shapedRecipe.getIngredients(), shapedRecipe.getRecipeOutput());
+        super(shapedRecipe.getId(), shapedRecipe.getGroup(), shapedRecipe.getRecipeWidth(), shapedRecipe.getRecipeHeight(), shapedRecipe.getIngredients(), shapedRecipe.getResultItem());
     }
 
     @Override
-    public ItemStack getCraftingResult(CraftingInventory inv) {
-        final ItemStack craftingResult = super.getCraftingResult(inv);
+    public ItemStack assemble(CraftingInventory inv) {
+        final ItemStack craftingResult = super.assemble(inv);
         ItemStack dataSource = ItemStack.EMPTY;
 
         if (!craftingResult.isEmpty()) {
-            for (int i = 0; i < inv.getSizeInventory(); i++) {
-                final ItemStack item = inv.getStackInSlot(i);
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                final ItemStack item = inv.getItem(i);
                 if (!item.isEmpty() && item.getItem() instanceof PocketStorageUnit) {
                     dataSource = item;
                     break;
@@ -50,14 +50,14 @@ public class CopyDataRecipe extends ShapedRecipe {
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<CopyDataRecipe> {
         @Nullable
         @Override
-        public CopyDataRecipe read(ResourceLocation recipeId, PacketBuffer buffer) {
-            return new CopyDataRecipe(IRecipeSerializer.CRAFTING_SHAPED.read(recipeId, buffer));
+        public CopyDataRecipe fromNetwork(ResourceLocation recipeId, PacketBuffer buffer) {
+            return new CopyDataRecipe(IRecipeSerializer.SHAPED_RECIPE.fromNetwork(recipeId, buffer));
         }
 
         @Override
-        public CopyDataRecipe read(ResourceLocation recipeId, JsonObject json) {
+        public CopyDataRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             try {
-                return new CopyDataRecipe(IRecipeSerializer.CRAFTING_SHAPED.read(recipeId, json));
+                return new CopyDataRecipe(IRecipeSerializer.SHAPED_RECIPE.fromJson(recipeId, json));
             } catch (Exception exception) {
                 PocketStorage.LOGGER.info("Error reading CopyData Recipe from packet: ", exception);
                 throw exception;
@@ -65,9 +65,9 @@ public class CopyDataRecipe extends ShapedRecipe {
         }
 
         @Override
-        public void write(PacketBuffer buffer, CopyDataRecipe recipe) {
+        public void toNetwork(PacketBuffer buffer, CopyDataRecipe recipe) {
             try {
-                IRecipeSerializer.CRAFTING_SHAPED.write(buffer, recipe);
+                IRecipeSerializer.SHAPED_RECIPE.toNetwork(buffer, recipe);
             } catch (Exception exception) {
                 PocketStorage.LOGGER.info("Error writing CopyData Recipe to packet: ", exception);
                 throw exception;
