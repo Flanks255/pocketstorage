@@ -1,17 +1,24 @@
 package com.flanks255.psu;
 
+import com.flanks255.psu.commands.PSUCommands;
+import com.flanks255.psu.crafting.CopyDataRecipe;
+import com.flanks255.psu.crafting.TargetNBTIngredient;
 import com.flanks255.psu.data.Generator;
 import com.flanks255.psu.gui.PSUContainer;
 import com.flanks255.psu.gui.PSUGui;
+import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.items.PocketStorageUnit;
 import com.flanks255.psu.network.PSUNetwork;
+import com.flanks255.psu.util.RecipeUnlocker;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.extensions.IForgeContainerType;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -33,18 +40,18 @@ public class PocketStorage
 {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MODID = "pocketstorage";
-    public static SimpleChannel network;
+    public static SimpleChannel NETWORK;
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     private static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
     private static final DeferredRegister<IRecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
 
-    public static final RegistryObject<Item> PSU1 = ITEMS.register("psu_1", () -> new PocketStorageUnit(8, 0xFF, Rarity.COMMON));
-    public static final RegistryObject<Item> PSU2 = ITEMS.register("psu_2", () -> new PocketStorageUnit( 16, 0xFFF, Rarity.UNCOMMON));
-    public static final RegistryObject<Item> PSU3 = ITEMS.register("psu_3", () -> new PocketStorageUnit( 32, 0xFFFF, Rarity.RARE));
-    public static final RegistryObject<Item> PSU4 = ITEMS.register("psu_4", () -> new PocketStorageUnit( 64, 0xFFFFF, Rarity.EPIC));
+    public static final RegistryObject<Item> PSU1 = ITEMS.register("psu_1", () -> new PocketStorageUnit(PSUTier.TIER1));
+    public static final RegistryObject<Item> PSU2 = ITEMS.register("psu_2", () -> new PocketStorageUnit( PSUTier.TIER2));
+    public static final RegistryObject<Item> PSU3 = ITEMS.register("psu_3", () -> new PocketStorageUnit( PSUTier.TIER3));
+    public static final RegistryObject<Item> PSU4 = ITEMS.register("psu_4", () -> new PocketStorageUnit( PSUTier.TIER4));
 
-    public static final RegistryObject<ContainerType<PSUContainer>> PSUCONTAINER = CONTAINERS.register("psu_container", () -> IForgeContainerType.create(PSUContainer::new));
+    public static final RegistryObject<ContainerType<PSUContainer>> PSUCONTAINER = CONTAINERS.register("psu_container", () -> IForgeContainerType.create(PSUContainer::fromNetwork));
 
     public static final RegistryObject<IRecipeSerializer<CopyDataRecipe>> UPGRADE_RECIPE = RECIPES.register("data_upgrade", CopyDataRecipe.Serializer::new);
 
@@ -58,12 +65,16 @@ public class PocketStorage
 
         bus.addListener(Generator::gatherData);
 
+        MinecraftForge.EVENT_BUS.addListener(this::onCommandsRegister);
+
         bus.addListener(this::setup);
         bus.addListener(this::doClientStuff);
 
         MinecraftForge.EVENT_BUS.addListener(this::pickupEvent);
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.addListener(this::interactEvent);
+
+        RecipeUnlocker.register(MODID, MinecraftForge.EVENT_BUS, 1);
     }
 
     private void pickupEvent(EntityItemPickupEvent event) {
@@ -87,10 +98,14 @@ public class PocketStorage
         }
     }
 
-    private void setup(final FMLCommonSetupEvent event)
-    {
-        // some preinit code
-        network = PSUNetwork.getNetworkChannel();
+    private void onCommandsRegister(RegisterCommandsEvent event) {
+        PSUCommands.register(event.getDispatcher());
+    }
+
+    private void setup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() ->
+            CraftingHelper.register(TargetNBTIngredient.Serializer.NAME, TargetNBTIngredient.SERIALIZER));
+        NETWORK = PSUNetwork.getNetworkChannel();
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {

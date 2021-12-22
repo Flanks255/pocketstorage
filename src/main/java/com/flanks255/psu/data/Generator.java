@@ -7,8 +7,8 @@ public class Generator {
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
 
-        PSUBlockTags blockTags = new PSUBlockTags(generator, event.getExistingFileHelper());
-        generator.addProvider(new PSUItemTags(generator, blockTags, event.getExistingFileHelper()));
         generator.addProvider(new PSUItemModels(generator, event.getExistingFileHelper()));
+        generator.addProvider(new PSURecipes(generator));
+        generator.addProvider(new PSULang(generator));
     }
 }

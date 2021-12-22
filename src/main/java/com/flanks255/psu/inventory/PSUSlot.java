@@ -1,12 +1,14 @@
-package com.flanks255.psu;
+package com.flanks255.psu.inventory;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
-class PSUSlot {
+public class PSUSlot {
     public static final PSUSlot EMPTY = new PSUSlot();
+    public ResourceLocation registryName;
+    private int count;
 
     public PSUSlot() {
         count = 0;
@@ -23,17 +25,13 @@ class PSUSlot {
     public PSUSlot(CompoundNBT tag) {
         readNBT(tag);
     }
-    public ResourceLocation registryName;
-    private int count;
 
     public void setCount(int count) {
         this.count = count;
     }
-
     public int getCount() {
         return count;
     }
-
     public void decrementCount(int dec) {
         count -= dec;
     }

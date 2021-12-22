@@ -1,4 +1,4 @@
-A simple tiered pocket mass storage mod, dont let your inventory fill up with cobblestone again.
+A simple tiered pocket mass storage mod, don't let your inventory fill up with cobblestone again.
 
 Current Features:  
   4 Tiers

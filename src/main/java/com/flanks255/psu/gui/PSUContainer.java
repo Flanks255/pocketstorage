@@ -1,79 +1,50 @@
 package com.flanks255.psu.gui;
 
-import com.flanks255.psu.PSUItemHandler;
+import com.flanks255.psu.inventory.PSUItemHandler;
 import com.flanks255.psu.PocketStorage;
-import com.flanks255.psu.items.PocketStorageUnit;
-import net.minecraft.client.resources.I18n;
+import com.flanks255.psu.items.PSUTier;
+import com.flanks255.psu.util.PSUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-public class PSUContainer extends Container {
+import java.util.Optional;
+import java.util.UUID;
 
-    public PSUContainer(final int windowId, final PlayerInventory playerInventory, PacketBuffer extra) {
-        this(windowId, playerInventory.player.level, playerInventory.player.blockPosition(), playerInventory, playerInventory.player);
+public class PSUContainer extends Container {
+    public PSUItemHandler handler;
+    private final PlayerInventory playerInv;
+    private final UUID uuid;
+
+
+    public static PSUContainer fromNetwork(int windowId, PlayerInventory playerInventory, PacketBuffer data) {
+        CompoundNBT nbt = data.readAnySizeNbt();
+        UUID uuidIn = data.readUUID();
+        PSUTier tier = PSUTier.values()[data.readInt()];
+        PSUItemHandler handler = new PSUItemHandler(tier);
+        handler.deserializeNBT(nbt);
+        return new PSUContainer(windowId, playerInventory, uuidIn, handler);
     }
-    public PSUContainer(int windowId, World world, BlockPos pos, PlayerInventory playerInventory, PlayerEntity player) {
+    public PSUContainer(final int windowId, final PlayerInventory playerInventory, UUID uuidIn, PSUItemHandler handlerIn) {
         super(PocketStorage.PSUCONTAINER.get(), windowId);
 
-        playerinv = playerInventory;
-        ItemStack stack = findPSU(player);
-        if (stack == null || stack.isEmpty()) {
-            player.closeContainer();
-            return;
-        }
+        uuid = uuidIn;
+        playerInv = playerInventory;
+        handler = handlerIn;
 
-        IItemHandler tmp = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null);
-        itemKey = stack.getDescriptionId();
-        if (tmp instanceof PSUItemHandler) {
-            handler = (PSUItemHandler) tmp;
-            ((PSUItemHandler) tmp).load();
-
-        } else
-            player.closeContainer();
         addPlayerSlots(playerInventory);
-    }
-
-    //public static final ContainerType type = new ContainerType<>(PSUContainer::new).setRegistryName("psu_container");
-    public String itemKey;
-    public PSUItemHandler handler;
-    private final PlayerInventory playerinv;
-    protected int slotID;
-
-    public ItemStack findPSU(PlayerEntity playerIn) {
-        PlayerInventory playerInventory = playerIn.inventory;
-
-        if (playerIn.getMainHandItem().getItem() instanceof PocketStorageUnit) {
-            for (int i = 0; i <= 8; i++) {
-                ItemStack stack = playerInventory.getItem(i);
-                if (stack == playerIn.getMainHandItem()) {
-                    slotID = i;
-                    return stack;
-                }
-            }
-        } else if (playerIn.getOffhandItem().getItem() instanceof PocketStorageUnit) {
-            slotID = -106;
-            return playerIn.getOffhandItem();
-        }
-        return ItemStack.EMPTY;
     }
 
     @Override
     public ItemStack clicked(int slot, int dragType, ClickType clickTypeIn, PlayerEntity player) {
-        if (slot >= 0) {
-            if (getSlot(slot).getItem().getItem() instanceof PocketStorageUnit)
-                return ItemStack.EMPTY;
-        }
         if (clickTypeIn == ClickType.SWAP)
             return ItemStack.EMPTY;
 
@@ -83,10 +54,10 @@ public class PSUContainer extends Container {
 
     public void networkSlotClick(int slot, boolean shift, boolean ctrl, boolean rightClick) {
         if (slot >= 0 && slot <= handler.getSlots()) {
-            if (!playerinv.getCarried().isEmpty()) {
-                ItemStack incoming = playerinv.getCarried();
-                if (incoming.hasTag() && playerinv.player.level.isClientSide()) {
-                    playerinv.player.sendMessage(new StringTextComponent(I18n.get("pocketstorage.nodataitems")), playerinv.player.getUUID());
+            if (!playerInv.getCarried().isEmpty()) {
+                ItemStack incoming = playerInv.getCarried();
+                if (incoming.hasTag() && playerInv.player.level.isClientSide()) {
+                    playerInv.player.sendMessage(new TranslationTextComponent("pocketstorage.util.no_data_items"), Util.NIL_UUID);
                     return;
                 }
                 if (rightClick) {
@@ -95,16 +66,16 @@ public class PSUContainer extends Container {
                     if (!remainder.isEmpty()) {
                         incoming.grow(1);
                     }
-                    playerinv.setCarried(incoming);
+                    playerInv.setCarried(incoming);
                 } else if (!ctrl) {
-                    playerinv.setCarried(handler.insertItem(slot, incoming, false));
+                    playerInv.setCarried(handler.insertItem(slot, incoming, false));
                 }
                 else {
                     if (incoming.getCount() < incoming.getMaxStackSize() && incoming.sameItem(handler.getStackInSlot(slot))) {
                         ItemStack tmp = handler.extractItem(slot, 1, false);
                         if (!tmp.isEmpty()) {
                             incoming.setCount(incoming.getCount()+1);
-                            playerinv.setCarried(incoming);
+                            playerInv.setCarried(incoming);
                         }
                     }
                 }
@@ -114,18 +85,15 @@ public class PSUContainer extends Container {
                 int extract = ctrl ? 1 : 64;
                 if (rightClick)
                     extract = Math.min(handler.getStackInSlot(slot).getCount() / 2, 32);
+                ItemStack tmp = handler.extractItem(slot, extract, false);
                 if (!shift) {
-                    ItemStack tmp = handler.extractItem(slot, extract, false);
                     if (!tmp.isEmpty()) {
-                        playerinv.setCarried(tmp);
+                        playerInv.setCarried(tmp);
                     }
-
-                    return;
                 }
-                if (shift) {
-                    ItemStack tmp = handler.extractItem(slot, extract, false);
+                else {
                     if (!tmp.isEmpty()) {
-                        ItemHandlerHelper.giveItemToPlayer(playerinv.player, tmp);
+                        ItemHandlerHelper.giveItemToPlayer(playerInv.player, tmp);
                     }
                 }
             }
@@ -134,39 +102,42 @@ public class PSUContainer extends Container {
 
     @Override
     public boolean stillValid(PlayerEntity playerIn) {
-        if (slotID == -106)
-            return playerIn.getOffhandItem().getItem() instanceof PocketStorageUnit;
-        return !playerIn.inventory.getItem(slotID).isEmpty();
+        return true;
     }
 
     @Override
     public ItemStack quickMoveStack(PlayerEntity playerIn, int index) {
-            Slot slot = this.slots.get(index);
+        Slot slot = this.slots.get(index);
 
-            if (slot != null && slot.hasItem()) {
-                return handler.insertItemSlotless(slot.getItem(), true, true);
-            }
-            return ItemStack.EMPTY;
+        if (slot != null && slot.hasItem()) {
+            return handler.insertItemSlotless(slot.getItem(), true, true);
         }
+        return ItemStack.EMPTY;
+    }
 
     private void addPlayerSlots(PlayerInventory playerInventory) {
         int originX = 7;
         int originY = 97;
+
+        //Hotbar
+        for (int col = 0; col < 9; col++) {
+            int x = originX + col * 18;
+            int y = originY + 58;
+            Optional<UUID> uuidOptional = PSUtils.getUUID(playerInventory.items.get(col));
+            boolean lockMe = uuidOptional.map(id -> id.compareTo(this.uuid) == 0).orElse(false);
+            this.addSlot(new LockableSlot(playerInventory, col, x+1, y+1, lockMe));
+        }
 
         //Player Inventory
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 int x = originX + col * 18;
                 int y = originY + row * 18;
-                this.addSlot(new Slot(playerInventory, (col + row * 9) + 9, x+1, y+1));
+                int index = (col + row * 9) + 9;
+                Optional<UUID> uuidOptional = PSUtils.getUUID(playerInventory.items.get(index));
+                boolean lockMe = uuidOptional.map(id -> id.compareTo(this.uuid) == 0).orElse(false);
+                this.addSlot(new LockableSlot(playerInventory, index, x+1, y+1, lockMe));
             }
-        }
-
-        //Hotbar
-        for (int col = 0; col < 9; col++) {
-            int x = originX + col * 18;
-            int y = originY + 58;
-            this.addSlot(new Slot(playerInventory, col, x+1, y+1));
         }
     }
 

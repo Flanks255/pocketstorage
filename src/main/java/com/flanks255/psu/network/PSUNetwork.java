@@ -10,19 +10,13 @@ public class PSUNetwork {
     public static final String networkVersion = new ResourceLocation(PocketStorage.MODID, "1").toString();
 
     public static SimpleChannel getNetworkChannel() {
-     final SimpleChannel channel = NetworkRegistry.ChannelBuilder.named(channelName)
-        .clientAcceptedVersions(version -> true)
-        .serverAcceptedVersions(version -> true)
-        .networkProtocolVersion(() -> networkVersion)
-        .simpleChannel();
+        final SimpleChannel channel = NetworkRegistry.ChannelBuilder.named(channelName)
+            .clientAcceptedVersions(version -> true)
+            .serverAcceptedVersions(version -> true)
+            .networkProtocolVersion(() -> networkVersion)
+            .simpleChannel();
 
-
-        channel.messageBuilder(SlotClickMessage.class, 1)
-                .decoder(SlotClickMessage::decode)
-                .encoder(SlotClickMessage::encode)
-                .consumer(SlotClickMessage::handle)
-                .add();
-
+        channel.registerMessage(1, SlotClickMessage.class, SlotClickMessage::encode, SlotClickMessage::decode, SlotClickMessage::handle);
 
         return channel;
     }

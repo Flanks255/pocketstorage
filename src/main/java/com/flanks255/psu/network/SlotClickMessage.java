@@ -32,12 +32,12 @@ public class SlotClickMessage {
 
     public static void handle(final SlotClickMessage message, final Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(
-                () -> {
-                    PlayerEntity player = ctx.get().getSender();
-                    if (player.containerMenu instanceof PSUContainer) {
-                        ((PSUContainer) player.containerMenu).networkSlotClick(message.slotID, message.shift, message.ctrl, message.rightClick);
-                    }
-                });
+            () -> {
+                PlayerEntity player = ctx.get().getSender();
+                if (player.containerMenu instanceof PSUContainer) {
+                    ((PSUContainer) player.containerMenu).networkSlotClick(message.slotID, message.shift, message.ctrl, message.rightClick);
+                }
+            });
         ctx.get().setPacketHandled(true);
     }
 }

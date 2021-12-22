@@ -1,30 +1,29 @@
-package com.flanks255.psu;
+package com.flanks255.psu.inventory;
 
+import com.flanks255.psu.items.PSUTier;
+import com.flanks255.psu.items.PocketStorageUnit;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 
 import javax.annotation.Nonnull;
 
-public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
-    public PSUItemHandler(ItemStack stack, int slotsCount, int capacity) {
-        slotCount = slotsCount;
-        slotCapacity = capacity;
-        slots = NonNullList.withSize(slotsCount, PSUSlot.EMPTY);
-        this.itemStack = stack;
-        load();
+public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundNBT> {
+    public PSUItemHandler(PSUTier tier) {
+        slotCount = tier.slots;
+        slotCapacity = tier.capacity;
+        slots = NonNullList.withSize(tier.slots, PSUSlot.EMPTY);
     }
 
-    private final NonNullList<PSUSlot> slots;
-    private final ItemStack itemStack;
-    private final int slotCount;
-    private final int slotCapacity;
+    private NonNullList<PSUSlot> slots;
+    private int slotCount;
+    private int slotCapacity;
 
     void checkIndex(int slot) {
         if (slot < 0 || slot >= slots.size())
@@ -39,6 +38,11 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
     @Override
     public int getSlotLimit(int slot) {
         return slotCapacity;
+    }
+
+    public PSUSlot getSlot(int slot) {
+        checkIndex(slot);
+        return slots.get(slot);
     }
 
     @Nonnull
@@ -57,32 +61,35 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
     }
 
     public boolean hasItem(ItemStack stack) {
-        //load();
-        for (int i = 0; i < slots.size(); i++) {
-            if (ItemHandlerHelper.canItemStacksStack(slots.get(i).getStack(), stack))
+        for (PSUSlot slot : slots) {
+            if (ItemHandlerHelper.canItemStacksStack(slot.getStack(), stack))
                 return true;
         }
         return false;
     }
 
-    @Override
-    public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
-        checkIndex(slot);
-        slots.set(slot, new PSUSlot(stack));
-        save();
+    public void upgrade(PSUTier tier) {
+        if (tier.slots <= this.slots.size())
+            return;
+        NonNullList<PSUSlot> oldStacks = this.slots;
+        this.slots = NonNullList.withSize(tier.slots, PSUSlot.EMPTY);
+        for (int i = 0; i < oldStacks.size(); i++) {
+            this.slots.set(i, oldStacks.get(i));
+        }
+        slotCount = tier.slots;
+        slotCapacity = tier.capacity;
     }
 
     public ItemStack insertItemSlotless(@Nonnull ItemStack stack, boolean allowEmpty, boolean allowVoid) {
         if (stack.isEmpty() || stack.hasTag())
             return ItemStack.EMPTY;
-        load();
-        for (int i = 0; i < slots.size(); i++) {
-            if (ItemHandlerHelper.canItemStacksStack(slots.get(i).getStack(),stack)) {
+
+        for (PSUSlot slot : slots) {
+            if (ItemHandlerHelper.canItemStacksStack(slot.getStack(), stack)) {
                 //Found matching item, insert it.
-                PSUSlot tmp = slots.get(i);
-                int remainder = allowVoid ? 0 : Math.max(tmp.getCount() + stack.getCount() - slotCapacity, 0);
-                tmp.setCount(Math.min(tmp.getCount() + stack.getCount(), slotCapacity));
-                save();
+                int remainder = allowVoid ? 0 : Math.max(slot.getCount() + stack.getCount() - slotCapacity, 0);
+                slot.setCount(Math.min(slot.getCount() + stack.getCount(), slotCapacity));
+                onContentsChanged();
                 ItemStack tmpstack = stack.copy();
                 stack.setCount(remainder);
                 return tmpstack;
@@ -93,7 +100,7 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
             for (int n = 0; n < slots.size(); n++) {
                 if (slots.get(n).isEmpty()) {
                     slots.set(n, new PSUSlot(stack));
-                    save();
+                    onContentsChanged();
                     ItemStack tmpstack = stack.copy();
                     stack.setCount(0);
                     return tmpstack;
@@ -113,13 +120,11 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
         if (!isItemValid(slot, stack))
             return stack;
 
-        load();
-
         //Slot is empty, fire away!
         if (slots.get(slot).isEmpty()) {
             if (!simulate) {
                 slots.set(slot, new PSUSlot(stack));
-                save();
+                onContentsChanged();
             }
             return ItemStack.EMPTY;
         }
@@ -128,7 +133,7 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
                 if (!simulate) {
                     PSUSlot tmp = slots.get(slot);
                     tmp.incrementCount(stack.getCount(), slotCapacity);
-                    save();
+                    onContentsChanged();
                 }
                 return ItemStack.EMPTY;
             }
@@ -156,13 +161,13 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
         if (tmp.getCount() <= extract) {
             if (!simulate) {
                 slots.set(slot, PSUSlot.EMPTY);
-                save();
+                onContentsChanged();
             }
         }
         else {
             if (!simulate) {
                 tmp.decrementCount(extract);
-                save();
+                onContentsChanged();
             }
         }
         return item;
@@ -170,10 +175,14 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
 
     @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        return !stack.hasTag();
+        return !stack.hasTag() && !(stack.getItem() instanceof PocketStorageUnit);
     }
 
-    public void save() {
+    private void onContentsChanged() {
+        StorageManager.get().setDirty();
+    }
+    @Override
+    public CompoundNBT serializeNBT() {
         ListNBT tagList = new ListNBT();
 
         for (PSUSlot slot : slots){
@@ -187,17 +196,14 @@ public class PSUItemHandler implements IItemHandler, IItemHandlerModifiable {
                 tagList.add(tmp);
             }
         }
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+        CompoundNBT nbt = new CompoundNBT();
         nbt.put("Slots", tagList);
 
-        itemStack.setTag(nbt);
-    }
-    public void load() {
-        if (itemStack.hasTag())
-            load(itemStack.getTag());
+        return nbt;
     }
 
-    public void load(@Nonnull CompoundNBT nbt) {
+    @Override
+    public void deserializeNBT(CompoundNBT nbt) {
         if (nbt.contains("Slots")) {
             ListNBT tagList = nbt.getList("Slots", Constants.NBT.TAG_COMPOUND);
 

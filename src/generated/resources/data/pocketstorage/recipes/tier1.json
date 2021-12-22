@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
+  "key": {
+    "A": {
+      "tag": "forge:ingots/iron"
+    },
+    "B": {
+      "item": "minecraft:piston"
+    },
+    "C": {
+      "tag": "forge:dusts/redstone"
+    },
+    "D": {
+      "tag": "forge:chests"
+    }
+  },
+  "result": {
+    "item": "pocketstorage:psu_1"
+  }
+}

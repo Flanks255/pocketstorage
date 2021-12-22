@@ -1,0 +1,26 @@
+{
+  "type": "pocketstorage:data_upgrade",
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
+  "key": {
+    "A": {
+      "tag": "forge:ingots/gold"
+    },
+    "B": {
+      "item": "minecraft:piston"
+    },
+    "C": {
+      "tag": "forge:chests"
+    },
+    "D": {
+      "item": "pocketstorage:psu_1",
+      "type": "pocketstorage:nbt_target"
+    }
+  },
+  "result": {
+    "item": "pocketstorage:psu_2"
+  }
+}

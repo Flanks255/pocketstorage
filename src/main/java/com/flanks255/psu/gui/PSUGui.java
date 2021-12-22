@@ -16,14 +16,16 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class PSUGui extends ContainerScreen<PSUContainer> {
@@ -37,22 +39,19 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
     protected void init() {
         super.init();
 
-        Button.IPressable slotclick = new Button.IPressable() {
-            @Override
-            public void onPress(Button button) {
-                PocketStorage.network.sendToServer(new SlotClickMessage(((GUISlot)button).slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false));
-                menu.networkSlotClick(((GUISlot)button).slot+scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false);
-            }
+        Button.IPressable slotClick = button -> {
+            PocketStorage.NETWORK.sendToServer(new SlotClickMessage(((GUISlot)button).slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false));
+            menu.networkSlotClick(((GUISlot)button).slot+scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false);
         };
 
-        addButton(new GUISlot(leftPos + 8, topPos + 19, 34,36,0 , slotclick));
-        addButton(new GUISlot(leftPos + 8 + 36, topPos + 19, 34,36,1 , slotclick));
-        addButton(new GUISlot(leftPos + 8 + 72, topPos + 19, 34,36,2 , slotclick));
-        addButton(new GUISlot(leftPos + 8 + 108, topPos + 19, 34,36,3 , slotclick));
-        addButton(new GUISlot(leftPos + 8, topPos + 19 + 38, 34,36,4 , slotclick));
-        addButton(new GUISlot(leftPos + 8 + 36, topPos + 19 + 38, 34,36,5 , slotclick));
-        addButton(new GUISlot(leftPos + 8 + 72, topPos + 19 + 38, 34,36,6 , slotclick));
-        addButton(new GUISlot(leftPos + 8 + 108, topPos + 19 + 38, 34,36,7 , slotclick));
+        addButton(new GUISlot(leftPos + 8, topPos + 19, 34,36,0 , slotClick));
+        addButton(new GUISlot(leftPos + 8 + 36, topPos + 19, 34,36,1 , slotClick));
+        addButton(new GUISlot(leftPos + 8 + 72, topPos + 19, 34,36,2 , slotClick));
+        addButton(new GUISlot(leftPos + 8 + 108, topPos + 19, 34,36,3 , slotClick));
+        addButton(new GUISlot(leftPos + 8, topPos + 19 + 38, 34,36,4 , slotClick));
+        addButton(new GUISlot(leftPos + 8 + 36, topPos + 19 + 38, 34,36,5 , slotClick));
+        addButton(new GUISlot(leftPos + 8 + 72, topPos + 19 + 38, 34,36,6 , slotClick));
+        addButton(new GUISlot(leftPos + 8 + 108, topPos + 19 + 38, 34,36,7 , slotClick));
         addButton(new ScrollButton(leftPos+ 152,topPos + 18, 16,37, true, (A) ->  scroll = scroll <= 0?0:scroll - 4 ));
         addButton(new ScrollButton(leftPos + 152,topPos + 55, 16,37, false, (A) ->  scroll = scroll >= menu.handler.getSlots()-8?menu.handler.getSlots()-8:scroll + 4 ));
     }
@@ -61,41 +60,27 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
     private int scroll = 0;
 
     @Override
-    public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_) {
-        if (p_mouseScrolled_5_ < 0)
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+        if (pDelta < 0)
             scroll = MathHelper.clamp(scroll + 4, 0, menu.handler.getSlots() -8);
-        if (p_mouseScrolled_5_ > 0)
+        if (pDelta > 0)
             scroll = MathHelper.clamp(scroll - 4, 0, menu.handler.getSlots() -8);
         return false;
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         this.getMinecraft().textureManager.bind(GUI);
         blit(matrixStack, leftPos, topPos, 0,0, 176,180, 176 ,180);
     }
 
-    private void drawTexturedQuad(int x, int y, int width, int height, float tx, float ty, float tw, float th, float z) {
-        Tessellator tess = Tessellator.getInstance();
-        BufferBuilder buffer = tess.getBuilder();
-
-        buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-        buffer.vertex((double)x + 0, (double) y + height, z).uv(tx,ty + th).endVertex();
-        buffer.vertex((double) x + width,(double) y + height, z).uv(tx + tw,ty + th).endVertex();
-        buffer.vertex((double) x + width, (double) y + 0, z).uv(tx + tw,ty).endVertex();
-        buffer.vertex((double) x + 0, (double) y + 0, z).uv(tx,ty).endVertex();
-
-        tess.end();
-    }
-
-
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void renderLabels(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY) {
         this.font.draw(matrixStack, this.title.getString(), 7,6,0x404040);
     }
 
     @Override
-    public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+    public void render(@Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(stack);
         for (IGuiEventListener listener : children) {
             if (listener instanceof GUISlot)
@@ -106,7 +91,7 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
     }
 
     @Override
-    protected void renderTooltip(MatrixStack stack, int x, int y) {
+    protected void renderTooltip(@Nonnull MatrixStack stack, int x, int y) {
         for (IGuiEventListener listener : children) {
             if (listener instanceof GUISlot)
                 ((GUISlot) listener).renderToolTip(stack, x, y);
@@ -124,12 +109,12 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
 
 
         @Override
-        public void renderButton(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+        public void renderButton(@Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
             getMinecraft().getTextureManager().bind(TEX);
             if (mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height)
-                drawTexturedQuad(x,y,width,height, 0.5f,up?0:.5f,.5f,.5f, 100F);
+                blit(stack, x, y, 16, up?0:37, 16, 37, 32, 74);
             else
-                drawTexturedQuad(x,y,width,height, 0.0f, up?0:.5f,.5f,.5f, 100F);
+                blit(stack, x, y, 0, up?0:37, 16, 37, 32, 74);
         }
     }
 
@@ -141,14 +126,14 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
         }
         public final int slot;
 
-        public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
+        public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
             if (this.active && this.visible) {
-                if (p_mouseClicked_5_ == 0 && this.clicked(p_mouseClicked_1_,p_mouseClicked_3_)) {
-                        //this.playDownSound(Minecraft.getInstance().getSoundHandler());
-                        this.onClick(p_mouseClicked_1_, p_mouseClicked_3_);
-                        return true;
-                } else if (p_mouseClicked_5_ == 1 && this.clicked(p_mouseClicked_1_,p_mouseClicked_3_)) {
-                    PocketStorage.network.sendToServer(new SlotClickMessage(slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true));
+                if (pButton == 0 && this.clicked(pMouseX,pMouseY)) {
+                    //this.playDownSound(Minecraft.getInstance().getSoundHandler());
+                    this.onClick(pMouseX, pMouseY);
+                    return true;
+                } else if (pButton == 1 && this.clicked(pMouseX,pMouseY)) {
+                    PocketStorage.NETWORK.sendToServer(new SlotClickMessage(slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true));
                     menu.networkSlotClick(slot+scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true);
                     return true;
                 }
@@ -157,13 +142,13 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
         }
 
         @Override
-        public void renderToolTip(MatrixStack mStack, int mx, int my) {
+        public void renderToolTip(@Nonnull MatrixStack mStack, int mx, int my) {
             if (mx >= x && mx < x + width && my >= y && my < y + height && menu != null && menu.handler != null) {
                 ItemStack stack = menu.handler.getStackInSlot(slot + scroll);
                 if(!stack.isEmpty()) {
                     net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(stack);
                     List<ITextComponent> tooltip = getTooltipFromItem(stack);
-                    tooltip.add(new StringTextComponent(I18n.get("pocketstorage.count",stack.getCount())));
+                    tooltip.add(new TranslationTextComponent("pocketstorage.util.count").withStyle(TextFormatting.WHITE).append(String.valueOf(stack.getCount())));
                     //renderTooltip with list
                     renderComponentTooltip(mStack, tooltip, mx, my);
                     net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip();
@@ -196,6 +181,11 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
             if (hovered) {
                 fill(mStack, x, y - 1, x + width, y + height, -2130706433);
             }
+            mStack.pushPose();
+            mStack.translate(x + 0.5, y + 0.5, 0);
+            mStack.scale(0.5f, 0.5f, 0.5f);
+            fontRenderer.draw(mStack,"#" + (slot + scroll), 0, 0, 0x454545);
+            mStack.popPose();
             if (menu.handler != null) {
                 ItemStack tmp = menu.handler.getStackInSlot(slot + scroll);
                 if (tmp != null) {
@@ -205,11 +195,11 @@ public class PSUGui extends ContainerScreen<PSUContainer> {
                     itemRenderer.renderAndDecorateItem(tmp, x + 9, y + 4);
                     if (tmp.getCount() > 0) {
                         String count = Integer.toString(tmp.getCount());
-                        int strwidth = fontRenderer.width(count);
+                        int stringWidth = fontRenderer.width(count);
 
-                        fontRenderer.draw(mStack, formatAmount(tmp.getCount()), x + 1 + (width / 2.0f) - (strwidth / 2.0f), y + 22, 0x000000);
+                        fontRenderer.draw(mStack, formatAmount(tmp.getCount()), x + 1 + (width / 2.0f) - (stringWidth / 2.0f), y + 22, 0x000000);
                     } else
-                        fontRenderer.draw(mStack, I18n.get("pocketstorage.empty"), x + 1 + (width / 2.0f) - (fontRenderer.width(I18n.get("pocketstorage.empty")) / 2.0f), y + 20, 0x000000);
+                        fontRenderer.draw(mStack, new TranslationTextComponent("pocketstorage.util.empty"), x + 1 + (width / 2.0f) - (fontRenderer.width(new TranslationTextComponent("pocketstorage.util.empty")) / 2.0f), y + 20, 0x000000);
                     itemRenderer.blitOffset = 0F;
                     RenderHelper.turnOff();
                 }
