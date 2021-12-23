@@ -18,6 +18,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: "com.matthewprenger.cursegradle"
 apply from: 'https://files.saps.dev/ci/git-md-changelog.gradle'
+apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
 repositories {
     maven { url "https://www.cursemaven.com" }
@@ -29,7 +30,7 @@ version = "${minecraft_version}-${mod_version}-build.${ENV.GITHUB_RUN_NUMBER ?: 
 group = 'com.flanks255'
 archivesBaseName = 'pocketstorage'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: 'parchment', version: "$mappings_version"
@@ -119,13 +120,13 @@ publishing {
 
     repositories {
 if (ENV.SAPS_TOKEN) {
-    maven {
-        url "https://maven.saps.dev/minecraft"
-        credentials {
-            username = "flanks"
-            password = "${ENV.SAPS_TOKEN}"
-        }
+maven {
+    url "https://maven.saps.dev/minecraft"
+    credentials {
+        username = "flanks"
+        password = "${ENV.SAPS_TOKEN}"
     }
+}
 }
     }
 }
@@ -135,9 +136,9 @@ if (ENV.CURSEFORGE_KEY) {
         apiKey = ENV.CURSEFORGE_KEY
         project {
             id = project.curseforge_id
-            releaseType = "release"
+            releaseType = "beta"
             addGameVersion "Forge"
-            addGameVersion "1.16.5"
+            addGameVersion "1.18.1"
             mainArtifact(jar)
             changelog = getGitChangelog
             changelogType = 'markdown'

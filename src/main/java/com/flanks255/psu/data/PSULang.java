@@ -2,7 +2,7 @@ package com.flanks255.psu.data;
 
 import com.flanks255.psu.PocketStorage;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.data.LanguageProvider;
 
 public class PSULang extends LanguageProvider {

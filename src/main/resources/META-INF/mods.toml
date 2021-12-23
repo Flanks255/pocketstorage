@@ -1,6 +1,6 @@
 modLoader="javafml"
 license="MIT"
-loaderVersion="[36,)"
+loaderVersion="[39,)"
 [[mods]]
 modId="pocketstorage"
 version="${file.jarVersion}"

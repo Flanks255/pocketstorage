@@ -2,11 +2,11 @@ package com.flanks255.psu.inventory;
 
 import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.items.PocketStorageUnit;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.core.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -14,7 +14,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 
-public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundNBT> {
+public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTag> {
     public PSUItemHandler(PSUTier tier) {
         slotCount = tier.slots;
         slotCapacity = tier.capacity;
@@ -182,33 +182,33 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundNB
         StorageManager.get().setDirty();
     }
     @Override
-    public CompoundNBT serializeNBT() {
-        ListNBT tagList = new ListNBT();
+    public CompoundTag serializeNBT() {
+        ListTag tagList = new ListTag();
 
         for (PSUSlot slot : slots){
             if (!slot.isEmpty()) {
                 tagList.add(slot.writeNBT());
             }
             else {
-                CompoundNBT tmp = new CompoundNBT();
+                CompoundTag tmp = new CompoundTag();
                 tmp.putString("Item", "");
                 tmp.putInt("Count", 0);
                 tagList.add(tmp);
             }
         }
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         nbt.put("Slots", tagList);
 
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         if (nbt.contains("Slots")) {
-            ListNBT tagList = nbt.getList("Slots", Constants.NBT.TAG_COMPOUND);
+            ListTag tagList = nbt.getList("Slots", Tag.TAG_COMPOUND);
 
             for (int i = 0; i < tagList.size(); i++) {
-                CompoundNBT itemTag = tagList.getCompound(i);
+                CompoundTag itemTag = tagList.getCompound(i);
                 if (i < slots.size()) {
                     PSUSlot tmp = new PSUSlot(itemTag);
                     slots.set(i, tmp);

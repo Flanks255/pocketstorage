@@ -4,36 +4,36 @@ import com.flanks255.psu.inventory.PSUItemHandler;
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.util.PSUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.Util;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class PSUContainer extends Container {
+public class PSUContainer extends AbstractContainerMenu {
     public PSUItemHandler handler;
-    private final PlayerInventory playerInv;
+    private final Inventory playerInv;
     private final UUID uuid;
 
 
-    public static PSUContainer fromNetwork(int windowId, PlayerInventory playerInventory, PacketBuffer data) {
-        CompoundNBT nbt = data.readAnySizeNbt();
+    public static PSUContainer fromNetwork(int windowId, Inventory playerInventory, FriendlyByteBuf data) {
+        CompoundTag nbt = data.readAnySizeNbt();
         UUID uuidIn = data.readUUID();
         PSUTier tier = PSUTier.values()[data.readInt()];
         PSUItemHandler handler = new PSUItemHandler(tier);
         handler.deserializeNBT(nbt);
         return new PSUContainer(windowId, playerInventory, uuidIn, handler);
     }
-    public PSUContainer(final int windowId, final PlayerInventory playerInventory, UUID uuidIn, PSUItemHandler handlerIn) {
+    public PSUContainer(final int windowId, final Inventory playerInventory, UUID uuidIn, PSUItemHandler handlerIn) {
         super(PocketStorage.PSUCONTAINER.get(), windowId);
 
         uuid = uuidIn;
@@ -44,20 +44,20 @@ public class PSUContainer extends Container {
     }
 
     @Override
-    public ItemStack clicked(int slot, int dragType, ClickType clickTypeIn, PlayerEntity player) {
+    public void clicked(int slot, int dragType, ClickType clickTypeIn, Player player) {
         if (clickTypeIn == ClickType.SWAP)
-            return ItemStack.EMPTY;
+            return;
 
         if (slot >= 0) getSlot(slot).container.setChanged();
-        return super.clicked(slot, dragType, clickTypeIn, player);
+        super.clicked(slot, dragType, clickTypeIn, player);
     }
 
     public void networkSlotClick(int slot, boolean shift, boolean ctrl, boolean rightClick) {
         if (slot >= 0 && slot <= handler.getSlots()) {
-            if (!playerInv.getCarried().isEmpty()) {
-                ItemStack incoming = playerInv.getCarried();
+            if (!getCarried().isEmpty()) {
+                ItemStack incoming = getCarried();
                 if (incoming.hasTag() && playerInv.player.level.isClientSide()) {
-                    playerInv.player.sendMessage(new TranslationTextComponent("pocketstorage.util.no_data_items"), Util.NIL_UUID);
+                    playerInv.player.sendMessage(new TranslatableComponent("pocketstorage.util.no_data_items"), Util.NIL_UUID);
                     return;
                 }
                 if (rightClick) {
@@ -66,16 +66,16 @@ public class PSUContainer extends Container {
                     if (!remainder.isEmpty()) {
                         incoming.grow(1);
                     }
-                    playerInv.setCarried(incoming);
+                    setCarried(incoming);
                 } else if (!ctrl) {
-                    playerInv.setCarried(handler.insertItem(slot, incoming, false));
+                    setCarried(handler.insertItem(slot, incoming, false));
                 }
                 else {
                     if (incoming.getCount() < incoming.getMaxStackSize() && incoming.sameItem(handler.getStackInSlot(slot))) {
                         ItemStack tmp = handler.extractItem(slot, 1, false);
                         if (!tmp.isEmpty()) {
                             incoming.setCount(incoming.getCount()+1);
-                            playerInv.setCarried(incoming);
+                            setCarried(incoming);
                         }
                     }
                 }
@@ -88,7 +88,7 @@ public class PSUContainer extends Container {
                 ItemStack tmp = handler.extractItem(slot, extract, false);
                 if (!shift) {
                     if (!tmp.isEmpty()) {
-                        playerInv.setCarried(tmp);
+                        setCarried(tmp);
                     }
                 }
                 else {
@@ -101,12 +101,12 @@ public class PSUContainer extends Container {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerIn) {
+    public boolean stillValid(Player playerIn) {
         return true;
     }
 
     @Override
-    public ItemStack quickMoveStack(PlayerEntity playerIn, int index) {
+    public ItemStack quickMoveStack(Player playerIn, int index) {
         Slot slot = this.slots.get(index);
 
         if (slot != null && slot.hasItem()) {
@@ -115,7 +115,7 @@ public class PSUContainer extends Container {
         return ItemStack.EMPTY;
     }
 
-    private void addPlayerSlots(PlayerInventory playerInventory) {
+    private void addPlayerSlots(Inventory playerInventory) {
         int originX = 7;
         int originY = 97;
 

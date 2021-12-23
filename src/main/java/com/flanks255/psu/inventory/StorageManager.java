@@ -2,36 +2,32 @@ package com.flanks255.psu.inventory;
 
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.items.PSUTier;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.world.World;
-import net.minecraft.world.storage.WorldSavedData;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.common.thread.SidedThreadGroups;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.util.thread.SidedThreadGroups;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
-public class StorageManager extends WorldSavedData {
+public class StorageManager extends SavedData {
     private static final String NAME = PocketStorage.MODID + "_data";
 
     private static final HashMap<UUID, PSUData> data = new HashMap<>();
 
     public static final StorageManager blankClient = new StorageManager();
 
-    public StorageManager() {
-        super(NAME);
-    }
-
     public static StorageManager get() {
         if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER)
-            return ServerLifecycleHooks.getCurrentServer().getLevel(World.OVERWORLD).getDataStorage().computeIfAbsent(StorageManager::new, NAME);
+            return ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(StorageManager::load, StorageManager::new, NAME);
         else
             return blankClient;
     }
@@ -80,18 +76,18 @@ public class StorageManager extends WorldSavedData {
         return LazyOptional.empty();
     }
 
-    @Override
-    public void load(CompoundNBT nbt) {
+    public static StorageManager load(CompoundTag nbt) {
         if (nbt.contains("PSUS")) {
-            ListNBT list = nbt.getList("PSUS", Constants.NBT.TAG_COMPOUND);
-            list.forEach((psuNBT) -> PSUData.fromNBT((CompoundNBT) psuNBT).ifPresent((psu) -> data.put(psu.getUuid(), psu)));
+            ListTag list = nbt.getList("PSUS", Tag.TAG_COMPOUND);
+            list.forEach((psuNBT) -> PSUData.fromNBT((CompoundTag) psuNBT).ifPresent((psu) -> data.put(psu.getUuid(), psu)));
         }
+        return new StorageManager();
     }
 
     @Override
     @Nonnull
-    public CompoundNBT save(CompoundNBT compound) {
-        ListNBT backpacks = new ListNBT();
+    public CompoundTag save(CompoundTag compound) {
+        ListTag backpacks = new ListTag();
         data.forEach(((uuid, backpackData) -> backpacks.add(backpackData.toNBT())));
         compound.put("PSUS", backpacks);
         return compound;

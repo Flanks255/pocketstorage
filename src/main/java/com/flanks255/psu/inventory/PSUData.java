@@ -1,7 +1,7 @@
 package com.flanks255.psu.inventory;
 
 import com.flanks255.psu.items.PSUTier;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
@@ -25,7 +25,7 @@ public class PSUData {
     }
 
     //create from nbt
-    public PSUData(UUID uuidIn, CompoundNBT incomingNBT) {
+    public PSUData(UUID uuidIn, CompoundTag incomingNBT) {
         uuid = uuidIn;
         tier = PSUTier.values()[Math.min(incomingNBT.getInt("Tier"), PSUTier.TIER4.ordinal())];
 
@@ -70,7 +70,7 @@ public class PSUData {
         return tier;
     }
 
-    public static Optional<PSUData> fromNBT(CompoundNBT nbt) {
+    public static Optional<PSUData> fromNBT(CompoundTag nbt) {
         if (nbt.contains("UUID")) {
             UUID uuid = nbt.getUUID("UUID");
             return Optional.of(new PSUData(uuid, nbt));
@@ -79,8 +79,8 @@ public class PSUData {
     }
 
 
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
 
         nbt.putUUID("UUID", uuid);
         nbt.putString("StringUUID", uuid.toString());
@@ -95,7 +95,7 @@ public class PSUData {
 
 
 
-    public static class Metadata implements INBTSerializable<CompoundNBT> {
+    public static class Metadata implements INBTSerializable<CompoundTag> {
         private String firstAccessedPlayer = "";
 
         private long firstAccessedTime = 0;
@@ -126,8 +126,8 @@ public class PSUData {
         }
 
         @Override
-        public CompoundNBT serializeNBT() {
-            CompoundNBT nbt = new CompoundNBT();
+        public CompoundTag serializeNBT() {
+            CompoundTag nbt = new CompoundTag();
 
             nbt.putString("firstPlayer", firstAccessedPlayer);
             nbt.putLong("firstTime", firstAccessedTime);
@@ -138,7 +138,7 @@ public class PSUData {
         }
 
         @Override
-        public void deserializeNBT(CompoundNBT nbt) {
+        public void deserializeNBT(CompoundTag nbt) {
             firstAccessedPlayer = nbt.getString("firstPlayer");
             firstAccessedTime = nbt.getLong("firstTime");
             lastAccessedPlayer = nbt.getString("lastPlayer");

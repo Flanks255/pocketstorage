@@ -4,14 +4,18 @@ import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.crafting.TargetNBTIngredient;
 import com.flanks255.psu.crafting.WrappedRecipe;
 import com.google.gson.JsonObject;
-import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.*;
-import net.minecraft.item.Items;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Items;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.Tags;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
+
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 
 public class PSURecipes extends RecipeProvider {
     public PSURecipes(DataGenerator pGenerator) {
@@ -19,13 +23,13 @@ public class PSURecipes extends RecipeProvider {
     }
 
     @Override
-    protected void saveAdvancement(DirectoryCache pCache, JsonObject pAdvancementJson, Path pPath) {
+    protected void saveAdvancement(HashCache pCache, JsonObject pAdvancementJson, Path pPath) {
         // Nah
     }
 
     @Override
-    protected void buildShapelessRecipes(Consumer<IFinishedRecipe> consumer) {
-        InventoryChangeTrigger.Instance lul = has(Items.AIR);
+    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
+        InventoryChangeTrigger.TriggerInstance lul = has(Items.AIR);
 
         ShapedRecipeBuilder.shaped(PocketStorage.PSU1.get())
             .pattern("ABA")

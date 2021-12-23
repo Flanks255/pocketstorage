@@ -10,30 +10,32 @@ import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.items.PocketStorageUnit;
 import com.flanks255.psu.network.PSUNetwork;
 import com.flanks255.psu.util.RecipeUnlocker;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.*;
-import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.extensions.IForgeContainerType;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 @Mod("pocketstorage")
 public class PocketStorage
@@ -43,17 +45,17 @@ public class PocketStorage
     public static SimpleChannel NETWORK;
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    private static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
-    private static final DeferredRegister<IRecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
+    private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
+    private static final DeferredRegister<RecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
 
     public static final RegistryObject<Item> PSU1 = ITEMS.register("psu_1", () -> new PocketStorageUnit(PSUTier.TIER1));
     public static final RegistryObject<Item> PSU2 = ITEMS.register("psu_2", () -> new PocketStorageUnit( PSUTier.TIER2));
     public static final RegistryObject<Item> PSU3 = ITEMS.register("psu_3", () -> new PocketStorageUnit( PSUTier.TIER3));
     public static final RegistryObject<Item> PSU4 = ITEMS.register("psu_4", () -> new PocketStorageUnit( PSUTier.TIER4));
 
-    public static final RegistryObject<ContainerType<PSUContainer>> PSUCONTAINER = CONTAINERS.register("psu_container", () -> IForgeContainerType.create(PSUContainer::fromNetwork));
+    public static final RegistryObject<MenuType<PSUContainer>> PSUCONTAINER = CONTAINERS.register("psu_container", () -> IForgeMenuType.create(PSUContainer::fromNetwork));
 
-    public static final RegistryObject<IRecipeSerializer<CopyDataRecipe>> UPGRADE_RECIPE = RECIPES.register("data_upgrade", CopyDataRecipe.Serializer::new);
+    public static final RegistryObject<RecipeSerializer<CopyDataRecipe>> UPGRADE_RECIPE = RECIPES.register("data_upgrade", CopyDataRecipe.Serializer::new);
 
 
     public PocketStorage() {
@@ -80,7 +82,7 @@ public class PocketStorage
     private void pickupEvent(EntityItemPickupEvent event) {
         if (event.getPlayer().containerMenu instanceof PSUContainer || event.getPlayer().isShiftKeyDown())
             return;
-        PlayerInventory playerInv = event.getPlayer().inventory;
+        Inventory playerInv = event.getPlayer().getInventory();
         for (int i = 0; i <= 35; i++) {
             ItemStack stack = playerInv.getItem(i);
             if (stack.getItem() instanceof PocketStorageUnit && ((PocketStorageUnit) stack.getItem()).pickupEvent(event, stack)) {
@@ -109,6 +111,6 @@ public class PocketStorage
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        ScreenManager.register(PSUCONTAINER.get(), PSUGui::new);
+        MenuScreens.register(PSUCONTAINER.get(), PSUGui::new);
     }
 }

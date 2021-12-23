@@ -1,9 +1,9 @@
 package com.flanks255.psu.items;
 
 import com.flanks255.psu.PocketStorage;
-import net.minecraft.item.Item;
-import net.minecraft.item.Rarity;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
+import net.minecraftforge.registries.RegistryObject;
 
 public enum PSUTier {
     TIER1("Tier 1", Rarity.COMMON, 8, 0xFF, PocketStorage.PSU1),

@@ -1,9 +1,9 @@
 package com.flanks255.psu.util;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -24,15 +24,15 @@ public class RecipeUnlocker {
     }
 
     private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        CompoundNBT tag = event.getPlayer().getPersistentData();
+        CompoundTag tag = event.getPlayer().getPersistentData();
         if (tag.contains(modtag) && tag.getInt(modtag) >= version)
             return;
 
-        PlayerEntity player = event.getPlayer();
-        if (player instanceof ServerPlayerEntity) {
+        Player player = event.getPlayer();
+        if (player instanceof ServerPlayer) {
             MinecraftServer server = player.getServer();
             if (server != null) {
-                List<IRecipe<?>> recipes = new ArrayList<>(server.getRecipeManager().getRecipes());
+                List<Recipe<?>> recipes = new ArrayList<>(server.getRecipeManager().getRecipes());
                 recipes.removeIf((recipe -> !recipe.getId().getNamespace().contains(MODID)));
                 player.awardRecipes(recipes);
                 tag.putInt(modtag, version);

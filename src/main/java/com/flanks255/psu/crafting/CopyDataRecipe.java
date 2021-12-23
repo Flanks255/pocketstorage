@@ -2,14 +2,14 @@ package com.flanks255.psu.crafting;
 
 import com.flanks255.psu.PocketStorage;
 import com.google.gson.JsonObject;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
@@ -26,7 +26,7 @@ public class CopyDataRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(@Nonnull CraftingInventory inv) {
+    public ItemStack assemble(@Nonnull CraftingContainer inv) {
         final ItemStack craftingResult = super.assemble(inv);
         TargetNBTIngredient donorIngredient = null;
         ItemStack dataSource = ItemStack.EMPTY;
@@ -55,17 +55,17 @@ public class CopyDataRecipe extends ShapedRecipe {
     }
 
 
-    public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<CopyDataRecipe> {
+    public static class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<CopyDataRecipe> {
         @Nullable
         @Override
-        public CopyDataRecipe fromNetwork(ResourceLocation recipeId, PacketBuffer buffer) {
-            return new CopyDataRecipe(IRecipeSerializer.SHAPED_RECIPE.fromNetwork(recipeId, buffer));
+        public CopyDataRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+            return new CopyDataRecipe(RecipeSerializer.SHAPED_RECIPE.fromNetwork(recipeId, buffer));
         }
 
         @Override
         public CopyDataRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             try {
-                return new CopyDataRecipe(IRecipeSerializer.SHAPED_RECIPE.fromJson(recipeId, json));
+                return new CopyDataRecipe(RecipeSerializer.SHAPED_RECIPE.fromJson(recipeId, json));
             } catch (Exception exception) {
                 PocketStorage.LOGGER.info("Error reading CopyData Recipe from packet: ", exception);
                 throw exception;
@@ -73,9 +73,9 @@ public class CopyDataRecipe extends ShapedRecipe {
         }
 
         @Override
-        public void toNetwork(PacketBuffer buffer, CopyDataRecipe recipe) {
+        public void toNetwork(FriendlyByteBuf buffer, CopyDataRecipe recipe) {
             try {
-                IRecipeSerializer.SHAPED_RECIPE.toNetwork(buffer, recipe);
+                RecipeSerializer.SHAPED_RECIPE.toNetwork(buffer, recipe);
             } catch (Exception exception) {
                 PocketStorage.LOGGER.info("Error writing CopyData Recipe to packet: ", exception);
                 throw exception;

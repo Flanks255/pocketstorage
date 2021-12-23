@@ -3,8 +3,8 @@ package com.flanks255.psu.util;
 import com.flanks255.psu.inventory.StorageManager;
 import com.flanks255.psu.items.PocketStorageUnit;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.command.CommandSource;
-import net.minecraft.item.ItemStack;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;
@@ -21,7 +21,7 @@ public class PSUtils {
             return Optional.empty();
     }
 
-    public static Set<String> getUUIDSuggestions(CommandContext<CommandSource> commandSource) {
+    public static Set<String> getUUIDSuggestions(CommandContext<CommandSourceStack> commandSource) {
         StorageManager manager = StorageManager.get();
         Set<String> list = new HashSet<>();
 
