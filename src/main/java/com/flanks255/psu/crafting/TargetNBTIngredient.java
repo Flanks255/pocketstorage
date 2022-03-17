@@ -3,6 +3,7 @@ package com.flanks255.psu.crafting;
 import com.flanks255.psu.PocketStorage;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -37,7 +38,7 @@ public class TargetNBTIngredient extends Ingredient {
         return new TargetNBTIngredient(Stream.of(new ItemValue(itemStack)));
     }
     @Nonnull
-    public static TargetNBTIngredient of(@Nonnull Tag<Item> tag) {
+    public static TargetNBTIngredient of(@Nonnull TagKey<Item> tag) {
         return new TargetNBTIngredient(Stream.of(new TagValue(tag)));
     }
 
