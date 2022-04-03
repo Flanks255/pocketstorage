@@ -117,7 +117,7 @@ public class PocketStorageUnit extends Item {
         if (!context.getLevel().isClientSide) {
             World world = context.getLevel();
             BlockState bs = world.getBlockState(context.getClickedPos());
-            if (bs.hasTileEntity()) {
+            if (bs.hasTileEntity() && context.getPlayer() != null && context.getPlayer().isCrouching() && world.getBlockEntity(context.getClickedPos()).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).isPresent()) {
                 TileEntity te = world.getBlockEntity(context.getClickedPos());
                 LazyOptional<IItemHandler> chestOptional = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
                 Optional<PSUItemHandler> handler = StorageManager.get().getHandler(context.getItemInHand());
@@ -149,6 +149,8 @@ public class PocketStorageUnit extends Item {
     }
 
     public void onLeftClickEvent(PlayerInteractEvent.LeftClickBlock event) {
+        if (!event.getPlayer().isCrouching() || event.getWorld().isClientSide)
+            return;
         if (lastInteractPos.compareTo(event.getPos()) != 0)
             onLeftClick(event);
         else if (System.currentTimeMillis() - lastInteractMills > 1000)
