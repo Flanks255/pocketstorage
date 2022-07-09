@@ -82,6 +82,8 @@ dependencies {
     runtimeOnly fg.deobf("mezz.jei:jei-${jei_version}")
 
     runtimeOnly fg.deobf("curse.maven:TOP-245211:3671753")
+    runtimeOnly fg.deobf("curse.maven:FS-556861:3820051")
+    runtimeOnly fg.deobf("curse.maven:TITANIUM-287342:3819942")
     //runtimeOnly fg.deobf("curse.maven:BUILDINGGADGETS-298187:3553977")
 }
 
