@@ -10,9 +10,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.util.Optional;
@@ -47,7 +47,7 @@ public class Recover {
                 ItemHandlerHelper.giveItemToPlayer(player, stack);
             });
         } else
-            ctx.getSource().sendFailure(new TranslatableComponent("pocketstorage.util.invalid_uuid"));
+            ctx.getSource().sendFailure(Component.translatable("pocketstorage.util.invalid_uuid"));
         return 0;
     }
 }

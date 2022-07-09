@@ -18,9 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -99,7 +97,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
 
     class ScrollButton extends Button {
         public ScrollButton (int x, int y, int width, int height, boolean upIn, Button.OnPress pressable) {
-            super(x,y,width,height,new TextComponent(""),pressable);
+            super(x,y,width,height,Component.empty(),pressable);
             up = upIn;
         }
         private final boolean up;
@@ -120,7 +118,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
 
     class GUISlot extends Button {
         public GUISlot(int x, int y, int width, int height,int slotIn, Button.OnPress pressable) {
-            super(x,y,width,height,new TextComponent(""), pressable);
+            super(x, y, width, height, Component.empty(), pressable);
             this.slot = slotIn;
         }
         public final int slot;
@@ -146,7 +144,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
                 ItemStack stack = menu.handler.getStackInSlot(slot + scroll);
                 if(!stack.isEmpty()) {
                     List<Component> tooltip = getTooltipFromItem(stack);
-                    tooltip.add(new TranslatableComponent("pocketstorage.util.count").withStyle(ChatFormatting.WHITE).append(String.valueOf(stack.getCount())));
+                    tooltip.add(Component.translatable("pocketstorage.util.count").withStyle(ChatFormatting.WHITE).append(String.valueOf(stack.getCount())));
                     //renderTooltip with list
                     renderComponentTooltip(mStack, tooltip, mx, my);
                 }
@@ -196,7 +194,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
 
                         fontRenderer.draw(mStack, formatAmount(tmp.getCount()), x + 1 + (width / 2.0f) - (stringWidth / 2.0f), y + 22, 0x000000);
                     } else
-                        fontRenderer.draw(mStack, new TranslatableComponent("pocketstorage.util.empty"), x + 1 + (width / 2.0f) - (fontRenderer.width(new TranslatableComponent("pocketstorage.util.empty")) / 2.0f), y + 20, 0x000000);
+                        fontRenderer.draw(mStack, Component.translatable("pocketstorage.util.empty"), x + 1 + (width / 2.0f) - (fontRenderer.width(Component.translatable("pocketstorage.util.empty")) / 2.0f), y + 20, 0x000000);
                     itemRenderer.blitOffset = 0F;
                     Lighting.setupFor3DItems();
                 }

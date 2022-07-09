@@ -1,10 +1,5 @@
 {
   "type": "pocketstorage:data_upgrade",
-  "pattern": [
-    "ABA",
-    "CDC",
-    "ABA"
-  ],
   "key": {
     "A": {
       "item": "minecraft:piston"
@@ -16,10 +11,15 @@
       "tag": "forge:nether_stars"
     },
     "D": {
-      "item": "pocketstorage:psu_3",
-      "type": "pocketstorage:nbt_target"
+      "type": "pocketstorage:nbt_target",
+      "item": "pocketstorage:psu_3"
     }
   },
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
   "result": {
     "item": "pocketstorage:psu_4"
   }

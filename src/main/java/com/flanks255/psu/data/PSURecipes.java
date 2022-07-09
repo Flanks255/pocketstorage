@@ -23,8 +23,8 @@ public class PSURecipes extends RecipeProvider {
     }
 
     @Override
-    protected void saveAdvancement(HashCache pCache, JsonObject pAdvancementJson, Path pPath) {
-        // Nah
+    protected void saveAdvancement(CachedOutput cachedOutput, JsonObject object, Path path) {
+        // No thank you, good day sir.
     }
 
     @Override

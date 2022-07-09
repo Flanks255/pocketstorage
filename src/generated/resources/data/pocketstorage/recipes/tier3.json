@@ -1,10 +1,5 @@
 {
   "type": "pocketstorage:data_upgrade",
-  "pattern": [
-    "ABA",
-    "CDC",
-    "ABA"
-  ],
   "key": {
     "A": {
       "tag": "forge:gems/diamond"
@@ -16,10 +11,15 @@
       "tag": "forge:chests"
     },
     "D": {
-      "item": "pocketstorage:psu_2",
-      "type": "pocketstorage:nbt_target"
+      "type": "pocketstorage:nbt_target",
+      "item": "pocketstorage:psu_2"
     }
   },
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
   "result": {
     "item": "pocketstorage:psu_3"
   }

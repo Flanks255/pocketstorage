@@ -10,7 +10,6 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,7 +54,7 @@ public class CopyDataRecipe extends ShapedRecipe {
     }
 
 
-    public static class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<CopyDataRecipe> {
+    public static class Serializer implements RecipeSerializer<CopyDataRecipe> {
         @Nullable
         @Override
         public CopyDataRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {

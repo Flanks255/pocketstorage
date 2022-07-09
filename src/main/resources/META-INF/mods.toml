@@ -1,6 +1,6 @@
 modLoader="javafml"
 license="MIT"
-loaderVersion="[39,)"
+loaderVersion="[41,)"
 [[mods]]
 modId="pocketstorage"
 version="${file.jarVersion}"
@@ -10,3 +10,9 @@ credits=""
 authors="Flanks255"
 description='''
 '''
+[[dependencies.pocketstorage]]
+modId="forge"
+mandatory=true
+versionRange="[41.0.1,)"
+ordering="NONE"
+side="BOTH"

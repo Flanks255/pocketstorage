@@ -11,10 +11,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Optional;
@@ -43,10 +42,10 @@ public class Open {
             Optional<PSUData> data = storageManager.getStorage(uuid);
 
             data.ifPresent(psu -> NetworkHooks.openGui(player, new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
-                    new PSUContainer(windowId, playerInventory, uuid, psu.getHandler()), new TextComponent(psu.getTier().name)),
+                    new PSUContainer(windowId, playerInventory, uuid, psu.getHandler()), Component.literal(psu.getTier().name)),
                 packetBuffer -> packetBuffer.writeNbt(psu.getHandler().serializeNBT()).writeUUID(uuid).writeInt(psu.getTier().ordinal())));
         } else
-            ctx.getSource().sendFailure(new TranslatableComponent("pocketstorage.util.invalid_uuid"));
+            ctx.getSource().sendFailure(Component.translatable("pocketstorage.util.invalid_uuid"));
         return 0;
     }
 }

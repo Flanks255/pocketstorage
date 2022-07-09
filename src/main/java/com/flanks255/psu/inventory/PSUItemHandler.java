@@ -10,6 +10,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.registries.ForgeRegistries;
 
 
 import javax.annotation.Nonnull;
@@ -129,7 +130,7 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
             return ItemStack.EMPTY;
         }
         else {
-            if (slots.get(slot).registryName.equals(stack.getItem().getRegistryName())) {
+            if (slots.get(slot).checkItem(stack)) {
                 if (!simulate) {
                     PSUSlot tmp = slots.get(slot);
                     tmp.incrementCount(stack.getCount(), slotCapacity);

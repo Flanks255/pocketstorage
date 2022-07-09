@@ -1,5 +1,6 @@
 package com.flanks255.psu.inventory;
 
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -7,20 +8,23 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class PSUSlot {
     public static final PSUSlot EMPTY = new PSUSlot();
-    public ResourceLocation registryName;
+    private Item item;
     private int count;
 
     public PSUSlot() {
         count = 0;
-        registryName = new ResourceLocation("minecraft:air");
     }
     public PSUSlot(ResourceLocation itemIn, int countIn) {
         count = countIn;
-        registryName = itemIn;
+        item = ForgeRegistries.ITEMS.getValue(itemIn);
     }
     public PSUSlot(ItemStack stack) {
-        registryName = stack.getItem().getRegistryName();
+        item = stack.getItem();
         count = stack.getCount();
+    }
+
+    public boolean checkItem(ItemStack stack) {
+        return (stack.is(item) && !stack.hasTag());
     }
     public PSUSlot(CompoundTag tag) {
         readNBT(tag);
@@ -48,19 +52,19 @@ public class PSUSlot {
     }
 
     public ItemStack getStack() {
-        return new ItemStack(ForgeRegistries.ITEMS.getValue(registryName));
+        return new ItemStack(item);
     }
 
     public CompoundTag writeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("Item", registryName.toString());
+        tag.putString("Item", ForgeRegistries.ITEMS.getKey(item).toString());
         tag.putInt("Count", count);
         return tag;
     }
 
     public void readNBT(CompoundTag tag) {
         if (tag.contains("Item"))
-            registryName = new ResourceLocation(tag.getString("Item"));
+            item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(tag.getString("Item")));
         else {
             return;
         }

@@ -4,6 +4,7 @@ import com.flanks255.psu.inventory.PSUItemHandler;
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.util.PSUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
@@ -12,8 +13,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.Util;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.util.Optional;
@@ -57,7 +56,7 @@ public class PSUContainer extends AbstractContainerMenu {
             if (!getCarried().isEmpty()) {
                 ItemStack incoming = getCarried();
                 if (incoming.hasTag() && playerInv.player.level.isClientSide()) {
-                    playerInv.player.sendMessage(new TranslatableComponent("pocketstorage.util.no_data_items"), Util.NIL_UUID);
+                    playerInv.player.sendSystemMessage(Component.translatable("pocketstorage.util.no_data_items"));
                     return;
                 }
                 if (rightClick) {

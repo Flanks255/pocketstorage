@@ -15,9 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -78,21 +76,21 @@ public class PocketStorageUnit extends Item {
         String translationKey = getDescriptionId();
 
         if (Screen.hasShiftDown()) {
-            tooltip.add(new TranslatableComponent( translationKey + ".info", new TextComponent(String.valueOf(tier.slots)).withStyle(ChatFormatting.GOLD), new TextComponent(String.valueOf(tier.capacity)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable( translationKey + ".info", Component.literal(String.valueOf(tier.slots)).withStyle(ChatFormatting.GOLD), Component.literal(String.valueOf(tier.capacity)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY));
             if (hasTranslation(translationKey + ".info2"))
-                tooltip.add(new TranslatableComponent( translationKey + ".info2").withStyle(ChatFormatting.GRAY));
+                tooltip.add(Component.translatable( translationKey + ".info2").withStyle(ChatFormatting.GRAY));
             if (hasTranslation(translationKey + ".info3"))
-                tooltip.add(new TranslatableComponent( translationKey + ".info3").withStyle(ChatFormatting.GRAY));
-            tooltip.add(new TranslatableComponent("pocketstorage.util.deposit", new TranslatableComponent("pocketstorage.util.sneak_right").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY));
-            tooltip.add(new TranslatableComponent("pocketstorage.util.withdraw", new TranslatableComponent("pocketstorage.util.sneak_left").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY));
+                tooltip.add(Component.translatable( translationKey + ".info3").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("pocketstorage.util.deposit", Component.translatable("pocketstorage.util.sneak_right").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("pocketstorage.util.withdraw", Component.translatable("pocketstorage.util.sneak_left").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY));
         }
         else {
-            tooltip.add(new TranslatableComponent("pocketstorage.util.shift", new TranslatableComponent("pocketstorage.util.key_shift").withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC)).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("pocketstorage.util.shift", Component.translatable("pocketstorage.util.key_shift").withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC)).withStyle(ChatFormatting.GRAY));
         }
 
         if (flagIn.isAdvanced() && stack.getTag() != null && stack.getTag().contains("UUID")) {
             UUID uuid = stack.getTag().getUUID("UUID");
-            tooltip.add(new TextComponent("ID: " + uuid.toString().substring(0,8)).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+            tooltip.add(Component.literal("ID: " + uuid.toString().substring(0,8)).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
         }
     }
 
@@ -221,20 +219,12 @@ public class PocketStorageUnit extends Item {
             PSUTier tier = ((PocketStorageUnit) stack.getItem()).tier;
             UUID uuid = data.getUuid();
 
-            // Old PSU Migration Time
-            if(stack.getOrCreateTag().contains("Slots")) {
-                data.getHandler().deserializeNBT(stack.getTag());
-                stack.getTag().remove("Slots");
-                StorageManager.get().setDirty();
-                playerIn.sendMessage(new TranslatableComponent("pocketstorage.util.migration"), Util.NIL_UUID);
-            }
-
             data.updateAccessRecords(playerIn.getName().getString(), System.currentTimeMillis());
 
             // Upgrade Time
             if (data.getTier().ordinal() < tier.ordinal()) {
                 data.upgrade(tier);
-                playerIn.sendMessage(new TranslatableComponent("pocketstorage.util.upgrade"), Util.NIL_UUID);
+                playerIn.sendSystemMessage(Component.translatable("pocketstorage.util.upgrade"));
             }
 
             NetworkHooks.openGui((ServerPlayer) playerIn, new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
