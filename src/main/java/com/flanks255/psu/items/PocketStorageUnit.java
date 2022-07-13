@@ -160,7 +160,7 @@ public class PocketStorageUnit extends Item {
     }
 
     public void onLeftClickEvent(PlayerInteractEvent.LeftClickBlock event) {
-        if (!event.getPlayer().isCrouching() || event.getWorld().isClientSide)
+        if (!event.getEntity().isCrouching() || event.getLevel().isClientSide)
             return;
 
         if (lastInteractPos.compareTo(event.getPos()) != 0)
@@ -172,13 +172,13 @@ public class PocketStorageUnit extends Item {
     }
 
     private void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
-        if (!event.getWorld().isClientSide) {
-            Level world = event.getWorld();
+        if (!event.getLevel().isClientSide) {
+            Level world = event.getLevel();
             BlockState bs = world.getBlockState(event.getPos());
             if (bs.hasBlockEntity()) {
                 BlockEntity te = world.getBlockEntity(event.getPos());
                 LazyOptional<IItemHandler> chestOptional = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
-                Optional<PSUItemHandler> handler = StorageManager.get().getHandler(event.getPlayer().getMainHandItem());
+                Optional<PSUItemHandler> handler = StorageManager.get().getHandler(event.getEntity().getMainHandItem());
                 handler.ifPresent((my) -> chestOptional.ifPresent((chest) -> {
                     boolean movedItems = false;
                     for (int i = 0; i < chest.getSlots(); i++) {
@@ -192,7 +192,7 @@ public class PocketStorageUnit extends Item {
                         }
                     }
                     if (movedItems)
-                        event.getWorld().playSound(null, event.getPos(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.5F, 0.5F + (random.nextFloat() * 0.5F));
+                        event.getLevel().playSound(null, event.getPos(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.5F, 0.5F + (random.nextFloat() * 0.5F));
                 }));
             }
         }
@@ -227,7 +227,7 @@ public class PocketStorageUnit extends Item {
                 playerIn.sendSystemMessage(Component.translatable("pocketstorage.util.upgrade"));
             }
 
-            NetworkHooks.openGui((ServerPlayer) playerIn, new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
+            NetworkHooks.openScreen((ServerPlayer) playerIn, new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
                     new PSUContainer(windowId, playerInventory, uuid, data.getHandler()), stack.getHoverName()),
                 packetBuffer -> packetBuffer.writeNbt(data.getHandler().serializeNBT()).writeUUID(uuid).writeInt(data.getTier().ordinal())
             );

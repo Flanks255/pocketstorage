@@ -45,7 +45,7 @@ public class PocketStorage
     public static SimpleChannel NETWORK;
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
+    private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
     private static final DeferredRegister<RecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
 
     public static final RegistryObject<Item> PSU1 = ITEMS.register("psu_1", () -> new PocketStorageUnit(PSUTier.TIER1));
@@ -80,9 +80,9 @@ public class PocketStorage
     }
 
     private void pickupEvent(EntityItemPickupEvent event) {
-        if (event.getPlayer().containerMenu instanceof PSUContainer || event.getPlayer().isShiftKeyDown())
+        if (event.getEntity().containerMenu instanceof PSUContainer || event.getEntity().isShiftKeyDown())
             return;
-        Inventory playerInv = event.getPlayer().getInventory();
+        Inventory playerInv = event.getEntity().getInventory();
         for (int i = 0; i <= 35; i++) {
             ItemStack stack = playerInv.getItem(i);
             if (stack.getItem() instanceof PocketStorageUnit && ((PocketStorageUnit) stack.getItem()).pickupEvent(event, stack)) {
@@ -93,7 +93,7 @@ public class PocketStorage
     }
 
     private void interactEvent(PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getItemStack().getItem() instanceof PocketStorageUnit && event.getPlayer().isShiftKeyDown()) {
+        if (event.getItemStack().getItem() instanceof PocketStorageUnit && event.getEntity().isShiftKeyDown()) {
             if (event.getSide() == LogicalSide.SERVER)
                 ((PocketStorageUnit) event.getItemStack().getItem()).onLeftClickEvent(event);
             event.setCanceled(true);

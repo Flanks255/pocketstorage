@@ -41,7 +41,7 @@ public class Open {
 
             Optional<PSUData> data = storageManager.getStorage(uuid);
 
-            data.ifPresent(psu -> NetworkHooks.openGui(player, new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
+            data.ifPresent(psu -> NetworkHooks.openScreen(player, new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
                     new PSUContainer(windowId, playerInventory, uuid, psu.getHandler()), Component.literal(psu.getTier().name)),
                 packetBuffer -> packetBuffer.writeNbt(psu.getHandler().serializeNBT()).writeUUID(uuid).writeInt(psu.getTier().ordinal())));
         } else
