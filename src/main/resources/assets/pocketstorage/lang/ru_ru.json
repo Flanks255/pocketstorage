@@ -1,0 +1,28 @@
+{
+  "item.pocketstorage.psu_1": "Карманное хранилище Уровень:1",
+  "item.pocketstorage.psu_1.info": "§7Вмещает §6%d§7 различных предметов, до §6%d§7 штук каждого.",
+  "item.pocketstorage.psu_1.info2": "§7Автоматически собирает предметы,",
+  "item.pocketstorage.psu_1.info3": "§7удаляет излишки.",
+
+  "item.pocketstorage.psu_2": "Карманное хранилище Уровень:2",
+  "item.pocketstorage.psu_2.info": "§7Вмещает §6%d§7 различных предметов, до §6%d§7 штук каждого.",
+  "item.pocketstorage.psu_2.info2": "§7Автоматически собирает предметы,",
+  "item.pocketstorage.psu_2.info3": "§7удаляет излишки.",
+
+  "item.pocketstorage.psu_3": "Карманное хранилище Уровень:3",
+  "item.pocketstorage.psu_3.info": "§7Вмещает §6%d§7 различных предметов, до §6%d§7 штук каждого.",
+  "item.pocketstorage.psu_3.info2": "§7Автоматически собирает предметы,",
+  "item.pocketstorage.psu_3.info3": "§7удаляет излишки.",
+
+  "item.pocketstorage.psu_4": "Карманное хранилище Уровень:4",
+  "item.pocketstorage.psu_4.info": "§7Вмещает §6%d§7 различных предметов, до §6%d§7 штук каждого.",
+  "item.pocketstorage.psu_4.info2": "§7Автоматически собирает предметы,",
+  "item.pocketstorage.psu_4.info3": "§7удаляет излишки.",
+
+  "pocketstorage.nodataitems": "В карманном хранилищах можно хранить только простые предметы (без доп.данных).",
+  "pocketstorage.empty": "<  >",
+  "pocketstorage.shift": "§7Нажмите <§6§oShift§7> для получения инфо.",
+  "pocketstorage.count": "§fКоличество: %d",
+  "pocketstorage.deposit": "§6§oShift + ПКМ§7 по сундуку, чтобы переложить всё содержимое.",
+  "pocketstorage.withdraw": "§6§oShift + ЛКМ§7 по сундуку, чтобы забрать всё содержимое."
+}
