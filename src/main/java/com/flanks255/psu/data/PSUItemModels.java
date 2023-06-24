@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 public class PSUItemModels extends ItemModelProvider {
     public PSUItemModels(DataGenerator generator, ExistingFileHelper existingFileHelper) {
-        super(generator, PocketStorage.MODID, existingFileHelper);
+        super(generator.getPackOutput(), PocketStorage.MODID, existingFileHelper);
     }
 
     @Override

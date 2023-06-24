@@ -7,7 +7,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.components.Button;
@@ -19,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
+import org.jline.reader.Widget;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -78,10 +78,10 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
     @Override
     public void render(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(stack);
-        children().forEach(listener -> {
+/*        children().forEach(listener -> {
             if (listener instanceof GUISlot)
                 ((Widget) listener).render(stack, mouseX, mouseY, partialTicks);
-        });
+        });*/
         super.render(stack, mouseX, mouseY, partialTicks);
         this.renderTooltip(stack, mouseX, mouseY);
     }
@@ -97,7 +97,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
 
     class ScrollButton extends Button {
         public ScrollButton (int x, int y, int width, int height, boolean upIn, Button.OnPress pressable) {
-            super(x,y,width,height,Component.empty(),pressable);
+            super(x,y,width,height,Component.empty(),pressable, Button.DEFAULT_NARRATION);
             up = upIn;
         }
         private final boolean up;
@@ -108,17 +108,17 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
         public void renderButton(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, TEX);
-            if (mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height)
-                blit(stack, x, y, 16, up?0:37, 16, 37, 32, 74);
+            if (mouseX >= getX() && mouseX < getX() + width && mouseY >= getY() && mouseY < getY() + height)
+                blit(stack, getX(), getY(), 16, up?0:37, 16, 37, 32, 74);
             else
-                blit(stack, x, y, 0, up?0:37, 16, 37, 32, 74);
+                blit(stack, getX(), getY(), 0, up?0:37, 16, 37, 32, 74);
         }
     }
 
 
     class GUISlot extends Button {
         public GUISlot(int x, int y, int width, int height,int slotIn, Button.OnPress pressable) {
-            super(x, y, width, height, Component.empty(), pressable);
+            super(x, y, width, height, Component.empty(), pressable, Button.DEFAULT_NARRATION);
             this.slot = slotIn;
         }
         public final int slot;
@@ -138,9 +138,8 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
             return false;
         }
 
-        @Override
         public void renderToolTip(@Nonnull PoseStack mStack, int mx, int my) {
-            if (mx >= x && mx < x + width && my >= y && my < y + height && menu != null && menu.handler != null) {
+            if (mx >= getX() && mx < getX() + width && my >= getY() && my < getY() + height && menu != null && menu.handler != null) {
                 ItemStack stack = menu.handler.getStackInSlot(slot + scroll);
                 if(!stack.isEmpty()) {
                     List<Component> tooltip = getTooltipFromItem(stack);
@@ -167,17 +166,17 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
             mStack.pushPose();
             Font fontRenderer = Minecraft.getInstance().font;
 
-            boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
+            boolean hovered = mouseX >= getX() && mouseX < getX() + width && mouseY >= getY() && mouseY < getY() + height;
 
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
             if (hovered) {
-                fill(mStack, x, y - 1, x + width, y + height, -2130706433);
+                fill(mStack, getX(), getY() - 1, getX() + width, getY() + height, -2130706433);
             }
             mStack.pushPose();
-            mStack.translate(x + 0.5, y + 0.5, 0);
+            mStack.translate(getX() + 0.5, getY() + 0.5, 0);
             mStack.scale(0.5f, 0.5f, 0.5f);
             fontRenderer.draw(mStack,"#" + (slot + scroll), 0, 0, 0x454545);
             mStack.popPose();
@@ -187,14 +186,14 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
                     itemRenderer.blitOffset = 100F;
                     RenderSystem.enableDepthTest();
                     Lighting.setupForFlatItems();
-                    itemRenderer.renderAndDecorateItem(tmp, x + 9, y + 4);
+                    itemRenderer.renderAndDecorateItem(tmp, getX() + 9, getY() + 4);
                     if (tmp.getCount() > 0) {
                         String count = Integer.toString(tmp.getCount());
                         int stringWidth = fontRenderer.width(count);
 
-                        fontRenderer.draw(mStack, formatAmount(tmp.getCount()), x + 1 + (width / 2.0f) - (stringWidth / 2.0f), y + 22, 0x000000);
+                        fontRenderer.draw(mStack, formatAmount(tmp.getCount()), getX() + 1 + (width / 2.0f) - (stringWidth / 2.0f), getY() + 22, 0x000000);
                     } else
-                        fontRenderer.draw(mStack, Component.translatable("pocketstorage.util.empty"), x + 1 + (width / 2.0f) - (fontRenderer.width(Component.translatable("pocketstorage.util.empty")) / 2.0f), y + 20, 0x000000);
+                        fontRenderer.draw(mStack, Component.translatable("pocketstorage.util.empty"), getX() + 1 + (width / 2.0f) - (fontRenderer.width(Component.translatable("pocketstorage.util.empty")) / 2.0f), getY() + 20, 0x000000);
                     itemRenderer.blitOffset = 0F;
                     Lighting.setupFor3DItems();
                 }

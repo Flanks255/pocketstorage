@@ -7,7 +7,7 @@ import net.minecraftforge.common.data.LanguageProvider;
 
 public class PSULang extends LanguageProvider {
     public PSULang(DataGenerator gen) {
-        super(gen, PocketStorage.MODID, "en_us");
+        super(gen.getPackOutput(), PocketStorage.MODID, "en_us");
     }
 
     @Override

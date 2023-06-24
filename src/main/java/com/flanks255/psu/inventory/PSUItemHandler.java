@@ -14,6 +14,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTag> {
     public PSUItemHandler(PSUTier tier) {
@@ -81,13 +84,22 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
         slotCapacity = tier.capacity;
     }
 
+    public List<PSUSlot> getMatchingSlots(@Nonnull ItemStack stack) {
+        return slots.stream().filter(s -> ItemHandlerHelper.canItemStacksStack(s.getStack(), stack)).toList();
+    }
+
     public ItemStack insertItemSlotless(@Nonnull ItemStack stack, boolean allowEmpty, boolean allowVoid) {
         if (stack.isEmpty() || stack.hasTag())
             return ItemStack.EMPTY;
 
+        boolean foundAny = false;
+        int count = stack.getCount();
+
         for (PSUSlot slot : slots) {
             if (ItemHandlerHelper.canItemStacksStack(slot.getStack(), stack)) {
                 //Found matching item, insert it.
+                foundAny = true;
+
                 int remainder = allowVoid ? 0 : Math.max(slot.getCount() + stack.getCount() - slotCapacity, 0);
                 slot.setCount(Math.min(slot.getCount() + stack.getCount(), slotCapacity));
                 onContentsChanged();
@@ -96,6 +108,8 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
                 return tmpstack;
             }
         }
+
+
         if (allowEmpty) {
             //No matching slots found, find an empty one.
             for (int n = 0; n < slots.size(); n++) {

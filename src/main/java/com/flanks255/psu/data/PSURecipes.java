@@ -6,32 +6,37 @@ import com.flanks255.psu.crafting.WrappedRecipe;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.*;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.world.item.Items;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.Tags;
 
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 
+import javax.annotation.Nonnull;
+
 public class PSURecipes extends RecipeProvider {
     public PSURecipes(DataGenerator pGenerator) {
-        super(pGenerator);
+        super(pGenerator.getPackOutput());
     }
 
     @Override
-    protected void saveAdvancement(CachedOutput cachedOutput, JsonObject object, Path path) {
+    protected CompletableFuture<?> saveAdvancement(@Nonnull CachedOutput output, @Nonnull FinishedRecipe finishedRecipe, @Nonnull JsonObject advancementJson) {
         // No thank you, good day sir.
+        return null;
     }
 
     @Override
-    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
         InventoryChangeTrigger.TriggerInstance lul = has(Items.AIR);
 
-        ShapedRecipeBuilder.shaped(PocketStorage.PSU1.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU1.get())
             .pattern("ABA")
             .pattern("CDC")
             .pattern("ABA")
@@ -42,7 +47,7 @@ public class PSURecipes extends RecipeProvider {
             .unlockedBy("", lul)
             .save(consumer, new ResourceLocation(PocketStorage.MODID, "tier1"));
 
-        ShapedRecipeBuilder.shaped(PocketStorage.PSU2.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU2.get())
             .pattern("ABA")
             .pattern("CDC")
             .pattern("ABA")
@@ -53,7 +58,7 @@ public class PSURecipes extends RecipeProvider {
             .unlockedBy("", lul)
             .save(WrappedRecipe.Inject(consumer, PocketStorage.UPGRADE_RECIPE.get()), new ResourceLocation(PocketStorage.MODID, "tier2"));
 
-        ShapedRecipeBuilder.shaped(PocketStorage.PSU3.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU3.get())
             .pattern("ABA")
             .pattern("CDC")
             .pattern("ABA")
@@ -64,7 +69,7 @@ public class PSURecipes extends RecipeProvider {
             .unlockedBy("", lul)
             .save(WrappedRecipe.Inject(consumer, PocketStorage.UPGRADE_RECIPE.get()), new ResourceLocation(PocketStorage.MODID, "tier3"));
 
-        ShapedRecipeBuilder.shaped(PocketStorage.PSU4.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU4.get())
             .pattern("ABA")
             .pattern("CDC")
             .pattern("ABA")

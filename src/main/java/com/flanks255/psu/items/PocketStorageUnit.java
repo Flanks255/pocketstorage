@@ -20,11 +20,11 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -57,7 +57,7 @@ public class PocketStorageUnit extends Item {
     private BlockPos lastInteractPos = new BlockPos(0,0,0);
 
     public PocketStorageUnit(PSUTier tierIn) {
-        super(new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS));
+        super(new Item.Properties().stacksTo(1));
         this.tier = tierIn;
     }
     @Override
@@ -128,9 +128,9 @@ public class PocketStorageUnit extends Item {
         if (!context.getLevel().isClientSide) {
             Level world = context.getLevel();
             BlockState bs = world.getBlockState(context.getClickedPos());
-            if (bs.hasBlockEntity() && context.getPlayer() != null && context.getPlayer().isCrouching() &&  world.getBlockEntity(context.getClickedPos()).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).isPresent()) {
+            if (bs.hasBlockEntity() && context.getPlayer() != null && context.getPlayer().isCrouching() &&  world.getBlockEntity(context.getClickedPos()).getCapability(ForgeCapabilities.ITEM_HANDLER).isPresent()) {
                 BlockEntity te = world.getBlockEntity(context.getClickedPos());
-                LazyOptional<IItemHandler> chestOptional = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                LazyOptional<IItemHandler> chestOptional = te.getCapability(ForgeCapabilities.ITEM_HANDLER);
                 Optional<PSUItemHandler> handler = StorageManager.get().getHandler(context.getItemInHand());
                 handler.ifPresent((my) -> chestOptional.ifPresent((chest) -> {
                     boolean movedItems = false;
@@ -177,7 +177,7 @@ public class PocketStorageUnit extends Item {
             BlockState bs = world.getBlockState(event.getPos());
             if (bs.hasBlockEntity()) {
                 BlockEntity te = world.getBlockEntity(event.getPos());
-                LazyOptional<IItemHandler> chestOptional = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                LazyOptional<IItemHandler> chestOptional = te.getCapability(ForgeCapabilities.ITEM_HANDLER);
                 Optional<PSUItemHandler> handler = StorageManager.get().getHandler(event.getEntity().getMainHandItem());
                 handler.ifPresent((my) -> chestOptional.ifPresent((chest) -> {
                     boolean movedItems = false;
@@ -245,7 +245,7 @@ public class PocketStorageUnit extends Item {
         @Nonnull
         @Override
         public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-            if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            if (cap == ForgeCapabilities.ITEM_HANDLER) {
                 if(!lazyOptional.isPresent())
                     lazyOptional = StorageManager.get().getCapability(stack);
                 return lazyOptional.cast();
