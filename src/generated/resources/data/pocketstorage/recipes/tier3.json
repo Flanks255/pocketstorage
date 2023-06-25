@@ -23,5 +23,6 @@
   ],
   "result": {
     "item": "pocketstorage:psu_3"
-  }
+  },
+  "show_notification": false
 }

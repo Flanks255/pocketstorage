@@ -105,7 +105,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
 
 
         @Override
-        public void renderButton(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+        public void renderWidget(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, TEX);
             if (mouseX >= getX() && mouseX < getX() + width && mouseY >= getY() && mouseY < getY() + height)
@@ -162,7 +162,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
         }
 
         @Override
-        public void renderButton(PoseStack mStack, int mouseX, int mouseY, float partialTicks) {
+        public void renderWidget(PoseStack mStack, int mouseX, int mouseY, float partialTicks) {
             mStack.pushPose();
             Font fontRenderer = Minecraft.getInstance().font;
 
@@ -183,10 +183,10 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
             if (menu.handler != null) {
                 ItemStack tmp = menu.handler.getStackInSlot(slot + scroll);
                 if (tmp != null) {
-                    itemRenderer.blitOffset = 100F;
+                    //itemRenderer.blitOffset = 100F;
                     RenderSystem.enableDepthTest();
                     Lighting.setupForFlatItems();
-                    itemRenderer.renderAndDecorateItem(tmp, getX() + 9, getY() + 4);
+                    itemRenderer.renderAndDecorateItem(mStack, tmp, getX() + 9, getY() + 4);
                     if (tmp.getCount() > 0) {
                         String count = Integer.toString(tmp.getCount());
                         int stringWidth = fontRenderer.width(count);
@@ -194,7 +194,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
                         fontRenderer.draw(mStack, formatAmount(tmp.getCount()), getX() + 1 + (width / 2.0f) - (stringWidth / 2.0f), getY() + 22, 0x000000);
                     } else
                         fontRenderer.draw(mStack, Component.translatable("pocketstorage.util.empty"), getX() + 1 + (width / 2.0f) - (fontRenderer.width(Component.translatable("pocketstorage.util.empty")) / 2.0f), getY() + 20, 0x000000);
-                    itemRenderer.blitOffset = 0F;
+                    //itemRenderer.blitOffset = 0F;
                     Lighting.setupFor3DItems();
                 }
             }

@@ -45,6 +45,7 @@ public class PSURecipes extends RecipeProvider {
             .define('C', Tags.Items.DUSTS_REDSTONE)
             .define('D', Tags.Items.CHESTS)
             .unlockedBy("", lul)
+            .showNotification(false)
             .save(consumer, new ResourceLocation(PocketStorage.MODID, "tier1"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU2.get())
@@ -56,6 +57,7 @@ public class PSURecipes extends RecipeProvider {
             .define('C', Tags.Items.CHESTS)
             .define('D', TargetNBTIngredient.of(PocketStorage.PSU1.get()))
             .unlockedBy("", lul)
+            .showNotification(false)
             .save(WrappedRecipe.Inject(consumer, PocketStorage.UPGRADE_RECIPE.get()), new ResourceLocation(PocketStorage.MODID, "tier2"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU3.get())
@@ -67,6 +69,7 @@ public class PSURecipes extends RecipeProvider {
             .define('C', Tags.Items.CHESTS)
             .define('D', TargetNBTIngredient.of(PocketStorage.PSU2.get()))
             .unlockedBy("", lul)
+            .showNotification(false)
             .save(WrappedRecipe.Inject(consumer, PocketStorage.UPGRADE_RECIPE.get()), new ResourceLocation(PocketStorage.MODID, "tier3"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU4.get())
@@ -78,6 +81,7 @@ public class PSURecipes extends RecipeProvider {
             .define('C', Tags.Items.NETHER_STARS)
             .define('D', TargetNBTIngredient.of(PocketStorage.PSU3.get()))
             .unlockedBy("", lul)
+            .showNotification(false)
             .save(WrappedRecipe.Inject(consumer, PocketStorage.UPGRADE_RECIPE.get()), new ResourceLocation(PocketStorage.MODID, "tier4"));
     }
 }

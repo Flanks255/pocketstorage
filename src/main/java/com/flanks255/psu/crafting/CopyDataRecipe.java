@@ -2,6 +2,7 @@ package com.flanks255.psu.crafting;
 
 import com.flanks255.psu.PocketStorage;
 import com.google.gson.JsonObject;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -22,12 +23,12 @@ public class CopyDataRecipe extends ShapedRecipe {
     }
 
     public CopyDataRecipe(ShapedRecipe shapedRecipe) {
-        super(shapedRecipe.getId(), shapedRecipe.getGroup(), shapedRecipe.category(), shapedRecipe.getRecipeWidth(), shapedRecipe.getRecipeHeight(), shapedRecipe.getIngredients(), shapedRecipe.getResultItem());
+        super(shapedRecipe.getId(), shapedRecipe.getGroup(), shapedRecipe.category(), shapedRecipe.getRecipeWidth(), shapedRecipe.getRecipeHeight(), shapedRecipe.getIngredients(), shapedRecipe.getResultItem(null));
     }
 
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inv) {
-        final ItemStack craftingResult = super.assemble(inv);
+    public ItemStack assemble(@Nonnull CraftingContainer inv, RegistryAccess thing) {
+        final ItemStack craftingResult = super.assemble(inv, thing);
         TargetNBTIngredient donorIngredient = null;
         ItemStack dataSource = ItemStack.EMPTY;
         NonNullList<Ingredient> ingredients = getIngredients();

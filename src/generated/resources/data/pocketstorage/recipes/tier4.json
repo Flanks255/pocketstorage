@@ -23,5 +23,6 @@
   ],
   "result": {
     "item": "pocketstorage:psu_4"
-  }
+  },
+  "show_notification": false
 }
