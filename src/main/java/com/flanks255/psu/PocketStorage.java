@@ -13,10 +13,13 @@ import com.flanks255.psu.util.RecipeUnlocker;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -27,6 +30,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -70,7 +74,10 @@ public class PocketStorage
         MinecraftForge.EVENT_BUS.addListener(this::onCommandsRegister);
 
         bus.addListener(this::setup);
-        bus.addListener(this::doClientStuff);
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            bus.addListener(this::doClientStuff);
+            bus.addListener(this::creativeTabEvent);
+        }
 
         MinecraftForge.EVENT_BUS.addListener(this::pickupEvent);
         MinecraftForge.EVENT_BUS.register(this);
@@ -112,5 +119,14 @@ public class PocketStorage
 
     private void doClientStuff(final FMLClientSetupEvent event) {
         MenuScreens.register(PSUCONTAINER.get(), PSUGui::new);
+    }
+
+    private void creativeTabEvent(final BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey().compareTo(CreativeModeTabs.TOOLS_AND_UTILITIES) == 0) {
+            event.accept(PSU1.get());
+            event.accept(PSU2.get());
+            event.accept(PSU3.get());
+            event.accept(PSU4.get());
+        }
     }
 }
