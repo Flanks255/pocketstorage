@@ -55,7 +55,7 @@ public class PSUContainer extends AbstractContainerMenu {
         if (slot >= 0 && slot <= handler.getSlots()) {
             if (!getCarried().isEmpty()) {
                 ItemStack incoming = getCarried();
-                if (incoming.hasTag() && playerInv.player.level.isClientSide()) {
+                if (incoming.hasTag() && playerInv.player.level().isClientSide()) {
                     playerInv.player.sendSystemMessage(Component.translatable("pocketstorage.util.no_data_items"));
                     return;
                 }
@@ -70,7 +70,7 @@ public class PSUContainer extends AbstractContainerMenu {
                     setCarried(handler.insertItem(slot, incoming, false));
                 }
                 else {
-                    if (incoming.getCount() < incoming.getMaxStackSize() && incoming.sameItem(handler.getStackInSlot(slot))) {
+                    if (incoming.getCount() < incoming.getMaxStackSize() && ItemStack.isSameItem(incoming, handler.getStackInSlot(slot))) {
                         ItemStack tmp = handler.extractItem(slot, 1, false);
                         if (!tmp.isEmpty()) {
                             incoming.setCount(incoming.getCount()+1);

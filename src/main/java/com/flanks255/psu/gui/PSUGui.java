@@ -2,23 +2,21 @@ package com.flanks255.psu.gui;
 
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.network.SlotClickMessage;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.components.Button;
 import com.mojang.blaze3d.platform.Lighting;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import org.jline.reader.Widget;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -64,35 +62,33 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
     }
 
     @Override
-    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, this.GUI);
-        blit(matrixStack, leftPos, topPos, 0,0, 176,180, 176 ,180);
+    protected void renderBg(@Nonnull GuiGraphics gg, float partialTicks, int mouseX, int mouseY) {
+        gg.blit(GUI, leftPos, topPos, 0,0, 176,180, 176 ,180);
     }
 
     @Override
-    protected void renderLabels(@Nonnull PoseStack matrixStack, int mouseX, int mouseY) {
-        this.font.draw(matrixStack, this.title.getString(), 7,6,0x404040);
+    protected void renderLabels(@Nonnull GuiGraphics gg, int mouseX, int mouseY) {
+        gg.drawString(font, this.title.getString(), 7,6,0x404040, false);
     }
 
     @Override
-    public void render(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(stack);
+    public void render(@Nonnull GuiGraphics gg, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(gg);
 /*        children().forEach(listener -> {
             if (listener instanceof GUISlot)
                 ((Widget) listener).render(stack, mouseX, mouseY, partialTicks);
         });*/
-        super.render(stack, mouseX, mouseY, partialTicks);
-        this.renderTooltip(stack, mouseX, mouseY);
+        super.render(gg, mouseX, mouseY, partialTicks);
+        this.renderTooltip(gg, mouseX, mouseY);
     }
 
     @Override
-    protected void renderTooltip(@Nonnull PoseStack stack, int x, int y) {
+    protected void renderTooltip(@Nonnull GuiGraphics gg, int x, int y) {
         children().forEach(listener -> {
             if (listener instanceof GUISlot)
-                ((GUISlot) listener).renderToolTip(stack, x, y);
+                ((GUISlot) listener).renderToolTip(gg, x, y);
         });
-        super.renderTooltip(stack, x, y);
+        super.renderTooltip(gg, x, y);
     }
 
     class ScrollButton extends Button {
@@ -105,13 +101,11 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
 
 
         @Override
-        public void renderWidget(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, TEX);
+        public void renderWidget(@Nonnull GuiGraphics gg, int mouseX, int mouseY, float partialTicks) {
             if (mouseX >= getX() && mouseX < getX() + width && mouseY >= getY() && mouseY < getY() + height)
-                blit(stack, getX(), getY(), 16, up?0:37, 16, 37, 32, 74);
+                gg.blit(TEX, getX(), getY(), 16, up?0:37, 16, 37, 32, 74);
             else
-                blit(stack, getX(), getY(), 0, up?0:37, 16, 37, 32, 74);
+                gg.blit(TEX, getX(), getY(), 0, up?0:37, 16, 37, 32, 74);
         }
     }
 
@@ -138,14 +132,14 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
             return false;
         }
 
-        public void renderToolTip(@Nonnull PoseStack mStack, int mx, int my) {
+        public void renderToolTip(@Nonnull GuiGraphics gg, int mx, int my) {
             if (mx >= getX() && mx < getX() + width && my >= getY() && my < getY() + height && menu != null && menu.handler != null) {
                 ItemStack stack = menu.handler.getStackInSlot(slot + scroll);
                 if(!stack.isEmpty()) {
-                    List<Component> tooltip = getTooltipFromItem(stack);
+                    List<Component> tooltip = getTooltipFromItem(Minecraft.getInstance(), stack);
                     tooltip.add(Component.translatable("pocketstorage.util.count").withStyle(ChatFormatting.WHITE).append(String.valueOf(stack.getCount())));
                     //renderTooltip with list
-                    renderComponentTooltip(mStack, tooltip, mx, my);
+                    gg.renderComponentTooltip(font, tooltip, mx, my);
                 }
             }
         }
@@ -162,8 +156,8 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
         }
 
         @Override
-        public void renderWidget(PoseStack mStack, int mouseX, int mouseY, float partialTicks) {
-            mStack.pushPose();
+        public void renderWidget(GuiGraphics gg, int mouseX, int mouseY, float partialTicks) {
+            gg.pose().pushPose();
             Font fontRenderer = Minecraft.getInstance().font;
 
             boolean hovered = mouseX >= getX() && mouseX < getX() + width && mouseY >= getY() && mouseY < getY() + height;
@@ -173,32 +167,32 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
             if (hovered) {
-                fill(mStack, getX(), getY() - 1, getX() + width, getY() + height, -2130706433);
+                gg.fill(getX(), getY() - 1, getX() + width, getY() + height, -2130706433);
             }
-            mStack.pushPose();
-            mStack.translate(getX() + 0.5, getY() + 0.5, 0);
-            mStack.scale(0.5f, 0.5f, 0.5f);
-            fontRenderer.draw(mStack,"#" + (slot + scroll), 0, 0, 0x454545);
-            mStack.popPose();
+            gg.pose().pushPose();
+            gg.pose().translate(getX() + 0.5, getY() + 0.5, 0);
+            gg.pose().scale(0.5f, 0.5f, 0.5f);
+            gg.drawString(font,"#" + (slot + scroll), 0, 0, 0x454545, false);
+            gg.pose().popPose();
             if (menu.handler != null) {
                 ItemStack tmp = menu.handler.getStackInSlot(slot + scroll);
                 if (tmp != null) {
                     //itemRenderer.blitOffset = 100F;
                     RenderSystem.enableDepthTest();
                     Lighting.setupForFlatItems();
-                    itemRenderer.renderAndDecorateItem(mStack, tmp, getX() + 9, getY() + 4);
+                    gg.renderItem(tmp, getX() + 9, getY() + 4);
                     if (tmp.getCount() > 0) {
                         String count = Integer.toString(tmp.getCount());
                         int stringWidth = fontRenderer.width(count);
 
-                        fontRenderer.draw(mStack, formatAmount(tmp.getCount()), getX() + 1 + (width / 2.0f) - (stringWidth / 2.0f), getY() + 22, 0x000000);
+                        gg.drawString(font, formatAmount(tmp.getCount()), getX() + 1 + (width / 2) - (stringWidth / 2), getY() + 22, 0x000000, false);
                     } else
-                        fontRenderer.draw(mStack, Component.translatable("pocketstorage.util.empty"), getX() + 1 + (width / 2.0f) - (fontRenderer.width(Component.translatable("pocketstorage.util.empty")) / 2.0f), getY() + 20, 0x000000);
+                        gg.drawString(font, Component.translatable("pocketstorage.util.empty"), getX() + 1 + (width / 2) - (fontRenderer.width(Component.translatable("pocketstorage.util.empty")) / 2), getY() + 20, 0x000000, false);
                     //itemRenderer.blitOffset = 0F;
                     Lighting.setupFor3DItems();
                 }
             }
-            mStack.popPose();
+            gg.pose().popPose();
         }
     }
 }

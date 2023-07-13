@@ -36,14 +36,14 @@ public class List {
         StorageManager storageManager = StorageManager.get();
 
         if (storageManager.getMap().size() == 0) {
-            ctx.getSource().sendSuccess(Component.literal("[ ]"), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("[ ]"), false);
             return 0;
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 
-        storageManager.getMap().forEach( (uuid, psuData) -> ctx.getSource().sendSuccess(Component.literal(
+        storageManager.getMap().forEach( (uuid, psuData) -> ctx.getSource().sendSuccess(() -> Component.literal(
             "Truncated-UUID: " + psuData.getUuid().toString().substring(0,8) + "\nCreated By: " + psuData.meta.getLastAccessedPlayer() + " On: " + sdf.format(new Date(psuData.meta.getFirstAccessedTime())) + "\nLast accessed by: " + psuData.meta.getLastAccessedPlayer() + " on: " + sdf.format(new Date(psuData.meta.getLastAccessedTime()))
         ), false));
 
@@ -54,7 +54,7 @@ public class List {
         StorageManager storageManager = StorageManager.get();
 
         if (storageManager.getMap().size() == 0) {
-            ctx.getSource().sendSuccess(Component.literal("[ ]"), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("[ ]"), false);
             return 0;
         }
 
@@ -63,7 +63,7 @@ public class List {
 
         storageManager.getMap().forEach( (uuid, psuData) -> {
             if (psuData.meta.getFirstAccessedPlayer().equalsIgnoreCase(playerName)) {
-                ctx.getSource().sendSuccess(Component.literal(
+                ctx.getSource().sendSuccess(() -> Component.literal(
                     "Truncated-UUID: " + psuData.getUuid().toString().substring(0, 8) + "\nCreated By: " + psuData.meta.getLastAccessedPlayer() + " On: " + sdf.format(new Date(psuData.meta.getFirstAccessedTime())) + "\nLast accessed by: " + psuData.meta.getLastAccessedPlayer() + " on: " + sdf.format(new Date(psuData.meta.getLastAccessedTime()))
                 ), false);
             }
@@ -76,7 +76,7 @@ public class List {
         StorageManager storageManager = StorageManager.get();
 
         if (storageManager.getMap().size() == 0) {
-            ctx.getSource().sendSuccess(Component.literal("[ ]"), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("[ ]"), false);
             return 0;
         }
 
@@ -85,7 +85,7 @@ public class List {
 
         storageManager.getMap().forEach( (uuid, psuData) -> {
             if (psuData.meta.getLastAccessedPlayer().equalsIgnoreCase(playerName)) {
-                ctx.getSource().sendSuccess(Component.literal(
+                ctx.getSource().sendSuccess(() -> Component.literal(
                     "Truncated-UUID: " + psuData.getUuid().toString().substring(0, 8) + "\nCreated By: " + psuData.meta.getLastAccessedPlayer() + " On: " + sdf.format(new Date(psuData.meta.getFirstAccessedTime())) + "\nLast accessed by: " + psuData.meta.getLastAccessedPlayer() + " on: " + sdf.format(new Date(psuData.meta.getLastAccessedTime()))
                 ), false);
             }
