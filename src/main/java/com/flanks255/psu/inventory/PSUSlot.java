@@ -4,6 +4,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class PSUSlot {
@@ -13,6 +14,7 @@ public class PSUSlot {
 
     public PSUSlot() {
         count = 0;
+        item = Items.AIR;
     }
     public PSUSlot(ResourceLocation itemIn, int countIn) {
         count = countIn;

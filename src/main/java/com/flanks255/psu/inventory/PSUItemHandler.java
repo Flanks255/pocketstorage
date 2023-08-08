@@ -66,7 +66,7 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
 
     public boolean hasItem(ItemStack stack) {
         for (PSUSlot slot : slots) {
-            if (ItemHandlerHelper.canItemStacksStack(slot.getStack(), stack))
+            if (!slot.isEmpty() && ItemHandlerHelper.canItemStacksStack(slot.getStack(), stack))
                 return true;
         }
         return false;
@@ -96,7 +96,7 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
         int count = stack.getCount();
 
         for (PSUSlot slot : slots) {
-            if (ItemHandlerHelper.canItemStacksStack(slot.getStack(), stack)) {
+            if (!slot.isEmpty() && ItemHandlerHelper.canItemStacksStack(slot.getStack(), stack)) {
                 //Found matching item, insert it.
                 foundAny = true;
 
