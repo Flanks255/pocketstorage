@@ -14,7 +14,6 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -41,7 +40,7 @@ public class Open {
 
             Optional<PSUData> data = storageManager.getStorage(uuid);
 
-            data.ifPresent(psu -> NetworkHooks.openScreen(player, new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
+            data.ifPresent(psu -> player.openMenu(new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
                     new PSUContainer(windowId, playerInventory, uuid, psu.getHandler()), Component.literal(psu.getTier().name)),
                 packetBuffer -> packetBuffer.writeNbt(psu.getHandler().serializeNBT()).writeUUID(uuid).writeInt(psu.getTier().ordinal())));
         } else

@@ -2,9 +2,8 @@ package com.flanks255.psu.inventory;
 
 import com.flanks255.psu.items.PSUTier;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -13,7 +12,7 @@ public class PSUData {
     private final UUID uuid;
     private PSUTier tier;
     private final PSUItemHandler inventory;
-    private final LazyOptional<IItemHandler> optional;
+    private final Optional<IItemHandler> optional;
     public final Metadata meta = new Metadata();
 
     public PSUData(UUID uuidIn, PSUTier tierIn) {
@@ -21,7 +20,7 @@ public class PSUData {
         tier = tierIn;
 
         inventory = new PSUItemHandler(tier);
-        optional = LazyOptional.of(() -> inventory);
+        optional = Optional.of(inventory);
     }
 
     //create from nbt
@@ -31,7 +30,7 @@ public class PSUData {
 
         inventory = new PSUItemHandler(tier);
         inventory.deserializeNBT(incomingNBT.getCompound("Inventory"));
-        optional = LazyOptional.of(() -> inventory);
+        optional = Optional.of(inventory);
 
         if (incomingNBT.contains("Metadata"))
             meta.deserializeNBT(incomingNBT.getCompound("Metadata"));
@@ -41,7 +40,7 @@ public class PSUData {
         return uuid;
     }
 
-    public LazyOptional<IItemHandler> getOptional() {
+    public Optional<IItemHandler> getOptional() {
         return optional;
     }
 

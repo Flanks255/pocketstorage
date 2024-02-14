@@ -2,21 +2,17 @@ package com.flanks255.psu.inventory;
 
 import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.items.PocketStorageUnit;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.core.NonNullList;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.registries.ForgeRegistries;
-
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTag> {
     public PSUItemHandler(PSUTier tier) {

@@ -1,28 +1,28 @@
 {
-  "type": "pocketstorage:data_upgrade",
-  "category": "misc",
-  "key": {
-    "A": {
-      "item": "minecraft:piston"
+  "type": "pocketstorage:upgrade",
+  "value": {
+    "category": "misc",
+    "key": {
+      "A": {
+        "item": "minecraft:piston"
+      },
+      "B": {
+        "tag": "forge:chests"
+      },
+      "C": {
+        "tag": "forge:nether_stars"
+      },
+      "D": {
+        "item": "pocketstorage:psu_3"
+      }
     },
-    "B": {
-      "tag": "forge:chests"
-    },
-    "C": {
-      "tag": "forge:nether_stars"
-    },
-    "D": {
-      "type": "pocketstorage:nbt_target",
-      "item": "pocketstorage:psu_3"
+    "pattern": [
+      "ABA",
+      "CDC",
+      "ABA"
+    ],
+    "result": {
+      "item": "pocketstorage:psu_4"
     }
-  },
-  "pattern": [
-    "ABA",
-    "CDC",
-    "ABA"
-  ],
-  "result": {
-    "item": "pocketstorage:psu_4"
-  },
-  "show_notification": false
+  }
 }

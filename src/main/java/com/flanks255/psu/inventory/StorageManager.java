@@ -2,16 +2,15 @@ package com.flanks255.psu.inventory;
 
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.items.PSUTier;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.util.thread.SidedThreadGroups;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.fml.util.thread.SidedThreadGroups;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -27,7 +26,7 @@ public class StorageManager extends SavedData {
 
     public static StorageManager get() {
         if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER)
-            return ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(StorageManager::load, StorageManager::new, NAME);
+            return ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(new Factory<>(StorageManager::new, StorageManager::load), NAME);
         else
             return blankClient;
     }
@@ -49,11 +48,11 @@ public class StorageManager extends SavedData {
         });
     }
 
-    public LazyOptional<IItemHandler> getCapability(UUID uuid) {
+    public Optional<IItemHandler> getCapability(UUID uuid) {
         if (data.containsKey(uuid))
             return data.get(uuid).getOptional();
 
-        return LazyOptional.empty();
+        return Optional.empty();
     }
 
     public Optional<PSUItemHandler> getHandler(ItemStack stack) {
@@ -66,14 +65,14 @@ public class StorageManager extends SavedData {
         return Optional.empty();
     }
 
-    public LazyOptional<IItemHandler> getCapability(ItemStack stack) {
+    public IItemHandler getCapability(ItemStack stack) {
         if (stack.getOrCreateTag().contains("UUID")) {
             UUID uuid = stack.getTag().getUUID("UUID");
             if (data.containsKey(uuid))
-                return data.get(uuid).getOptional();
+                return data.get(uuid).getHandler();
         }
 
-        return LazyOptional.empty();
+        return null;
     }
 
     public static StorageManager load(CompoundTag nbt) {

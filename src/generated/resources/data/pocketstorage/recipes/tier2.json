@@ -1,28 +1,28 @@
 {
-  "type": "pocketstorage:data_upgrade",
-  "category": "misc",
-  "key": {
-    "A": {
-      "tag": "forge:ingots/gold"
+  "type": "pocketstorage:upgrade",
+  "value": {
+    "category": "misc",
+    "key": {
+      "A": {
+        "tag": "forge:ingots/gold"
+      },
+      "B": {
+        "item": "minecraft:piston"
+      },
+      "C": {
+        "tag": "forge:chests"
+      },
+      "D": {
+        "item": "pocketstorage:psu_1"
+      }
     },
-    "B": {
-      "item": "minecraft:piston"
-    },
-    "C": {
-      "tag": "forge:chests"
-    },
-    "D": {
-      "type": "pocketstorage:nbt_target",
-      "item": "pocketstorage:psu_1"
+    "pattern": [
+      "ABA",
+      "CDC",
+      "ABA"
+    ],
+    "result": {
+      "item": "pocketstorage:psu_2"
     }
-  },
-  "pattern": [
-    "ABA",
-    "CDC",
-    "ABA"
-  ],
-  "result": {
-    "item": "pocketstorage:psu_2"
-  },
-  "show_notification": false
+  }
 }

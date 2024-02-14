@@ -1,19 +1,19 @@
 package com.flanks255.psu.gui;
 
-import com.flanks255.psu.inventory.PSUItemHandler;
 import com.flanks255.psu.PocketStorage;
+import com.flanks255.psu.inventory.PSUItemHandler;
 import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.util.PSUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +25,7 @@ public class PSUContainer extends AbstractContainerMenu {
 
 
     public static PSUContainer fromNetwork(int windowId, Inventory playerInventory, FriendlyByteBuf data) {
-        CompoundTag nbt = data.readAnySizeNbt();
+        CompoundTag nbt = data.readNbt();
         UUID uuidIn = data.readUUID();
         PSUTier tier = PSUTier.values()[data.readInt()];
         PSUItemHandler handler = new PSUItemHandler(tier);

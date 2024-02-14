@@ -1,7 +1,7 @@
 package com.flanks255.psu.gui;
 
 import com.flanks255.psu.PocketStorage;
-import com.flanks255.psu.network.SlotClickMessage;
+import com.flanks255.psu.network.SlotClickPacket;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -33,7 +34,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
         super.init();
 
         Button.OnPress slotClick = button -> {
-            PocketStorage.NETWORK.sendToServer(new SlotClickMessage(((GUISlot)button).slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false));
+            PacketDistributor.SERVER.noArg().send(new SlotClickPacket(((GUISlot)button).slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false));
             menu.networkSlotClick(((GUISlot)button).slot+scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false);
         };
 
@@ -53,10 +54,10 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
     private int scroll = 0;
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        if (pDelta < 0)
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double pScrollX, double pScrollY) {
+        if (pScrollY < 0)
             scroll = Mth.clamp(scroll + 4, 0, menu.handler.getSlots() -8);
-        if (pDelta > 0)
+        if (pScrollY > 0)
             scroll = Mth.clamp(scroll - 4, 0, menu.handler.getSlots() -8);
         return false;
     }
@@ -73,11 +74,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
 
     @Override
     public void render(@Nonnull GuiGraphics gg, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(gg);
-/*        children().forEach(listener -> {
-            if (listener instanceof GUISlot)
-                ((Widget) listener).render(stack, mouseX, mouseY, partialTicks);
-        });*/
+        this.renderBackground(gg, mouseX, mouseY, partialTicks);
         super.render(gg, mouseX, mouseY, partialTicks);
         this.renderTooltip(gg, mouseX, mouseY);
     }
@@ -124,7 +121,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
                     this.onClick(pMouseX, pMouseY);
                     return true;
                 } else if (pButton == 1 && this.clicked(pMouseX,pMouseY)) {
-                    PocketStorage.NETWORK.sendToServer(new SlotClickMessage(slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true));
+                    PacketDistributor.SERVER.noArg().send(new SlotClickPacket(slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true));
                     menu.networkSlotClick(slot+scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true);
                     return true;
                 }

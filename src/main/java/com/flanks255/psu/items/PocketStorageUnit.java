@@ -1,32 +1,38 @@
 package com.flanks255.psu.items;
 
+import com.flanks255.psu.gui.PSUContainer;
 import com.flanks255.psu.inventory.PSUData;
 import com.flanks255.psu.inventory.PSUItemHandler;
-import com.flanks255.psu.gui.PSUContainer;
 import com.flanks255.psu.inventory.StorageManager;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.event.entity.player.EntityItemPickupEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,20 +40,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
-
-import net.minecraft.Util;
-import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraftforge.network.NetworkHooks;
 
 public class PocketStorageUnit extends Item {
     private final PSUTier tier;
@@ -94,12 +86,6 @@ public class PocketStorageUnit extends Item {
         }
     }
 
-    @Nullable
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-        return new PSUCaps(stack);
-    }
-
     public boolean pickupEvent(EntityItemPickupEvent event, ItemStack stack) {
         Optional<PSUItemHandler> handlerOpt = StorageManager.get().getHandler(stack);
 
@@ -127,11 +113,11 @@ public class PocketStorageUnit extends Item {
     public InteractionResult useOn(UseOnContext context) {
         if (!context.getLevel().isClientSide) {
             Level world = context.getLevel();
-            BlockState bs = world.getBlockState(context.getClickedPos());
-            if (bs.hasBlockEntity() && context.getPlayer() != null && context.getPlayer().isCrouching() &&  world.getBlockEntity(context.getClickedPos()).getCapability(ForgeCapabilities.ITEM_HANDLER).isPresent()) {
-                BlockEntity te = world.getBlockEntity(context.getClickedPos());
-                LazyOptional<IItemHandler> chestOptional = te.getCapability(ForgeCapabilities.ITEM_HANDLER);
+            BlockState blockState = world.getBlockState(context.getClickedPos());
+            if (blockState.hasBlockEntity() && context.getPlayer() != null && context.getPlayer().isCrouching()) {
                 Optional<PSUItemHandler> handler = StorageManager.get().getHandler(context.getItemInHand());
+                BlockEntity blockEntity = world.getBlockEntity(context.getClickedPos());
+                Optional<IItemHandler> chestOptional = Optional.ofNullable(world.getCapability(Capabilities.ItemHandler.BLOCK, context.getClickedPos(), blockState, blockEntity, context.getClickedFace()));
                 handler.ifPresent((my) -> chestOptional.ifPresent((chest) -> {
                     boolean movedItems = false;
                     for (int i = 0; i < my.getSlots(); i++) {
@@ -174,10 +160,10 @@ public class PocketStorageUnit extends Item {
     private void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
         if (!event.getLevel().isClientSide) {
             Level world = event.getLevel();
-            BlockState bs = world.getBlockState(event.getPos());
-            if (bs.hasBlockEntity()) {
-                BlockEntity te = world.getBlockEntity(event.getPos());
-                LazyOptional<IItemHandler> chestOptional = te.getCapability(ForgeCapabilities.ITEM_HANDLER);
+            BlockState blockState = world.getBlockState(event.getPos());
+            if (blockState.hasBlockEntity()) {
+                BlockEntity blockEntity = world.getBlockEntity(event.getPos());
+                Optional<IItemHandler> chestOptional = Optional.ofNullable(world.getCapability(Capabilities.ItemHandler.BLOCK, event.getPos(), blockState, blockEntity, event.getFace()));
                 Optional<PSUItemHandler> handler = StorageManager.get().getHandler(event.getEntity().getMainHandItem());
                 handler.ifPresent((my) -> chestOptional.ifPresent((chest) -> {
                     boolean movedItems = false;
@@ -227,7 +213,7 @@ public class PocketStorageUnit extends Item {
                 playerIn.sendSystemMessage(Component.translatable("pocketstorage.util.upgrade"));
             }
 
-            NetworkHooks.openScreen((ServerPlayer) playerIn, new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
+            playerIn.openMenu(new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
                     new PSUContainer(windowId, playerInventory, uuid, data.getHandler()), stack.getHoverName()),
                 packetBuffer -> packetBuffer.writeNbt(data.getHandler().serializeNBT()).writeUUID(uuid).writeInt(data.getTier().ordinal())
             );
@@ -235,7 +221,7 @@ public class PocketStorageUnit extends Item {
     }
 
 
-    static class PSUCaps implements ICapabilityProvider {
+/*    static class PSUCaps implements ICapabilityProvider {
         public PSUCaps(ItemStack stack) {
             this.stack = stack;
         }
@@ -253,5 +239,5 @@ public class PocketStorageUnit extends Item {
             else
                 return LazyOptional.empty();
         }
-    }
+    }*/
 }

@@ -3,7 +3,7 @@ package com.flanks255.psu.items;
 import com.flanks255.psu.PocketStorage;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 public enum PSUTier {
     TIER1("Tier 1", Rarity.COMMON, 8, 0xFF, PocketStorage.PSU1),
@@ -15,9 +15,9 @@ public enum PSUTier {
     public final Rarity rarity;
     public final int slots;
     public final int capacity;
-    public final RegistryObject<Item> item;
+    public final DeferredItem<Item> item;
 
-    PSUTier(String name, Rarity rarity, int slots, int capacity, RegistryObject<Item> item) {
+    PSUTier(String name, Rarity rarity, int slots, int capacity, DeferredItem<Item> item) {
         this.name = name;
         this.rarity = rarity;
         this.slots = slots;

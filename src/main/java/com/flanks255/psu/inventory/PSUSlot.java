@@ -1,11 +1,11 @@
 package com.flanks255.psu.inventory;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class PSUSlot {
     public static final PSUSlot EMPTY = new PSUSlot();
@@ -18,7 +18,7 @@ public class PSUSlot {
     }
     public PSUSlot(ResourceLocation itemIn, int countIn) {
         count = countIn;
-        item = ForgeRegistries.ITEMS.getValue(itemIn);
+        item = BuiltInRegistries.ITEM.get(itemIn);
     }
     public PSUSlot(ItemStack stack) {
         item = stack.getItem();
@@ -59,14 +59,14 @@ public class PSUSlot {
 
     public CompoundTag writeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("Item", ForgeRegistries.ITEMS.getKey(item).toString());
+        tag.putString("Item", BuiltInRegistries.ITEM.getKey(item).toString());
         tag.putInt("Count", count);
         return tag;
     }
 
     public void readNBT(CompoundTag tag) {
         if (tag.contains("Item"))
-            item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(tag.getString("Item")));
+            item = BuiltInRegistries.ITEM.get(new ResourceLocation(tag.getString("Item")));
         else {
             return;
         }

@@ -1,40 +1,39 @@
 package com.flanks255.psu;
 
 import com.flanks255.psu.commands.PSUCommands;
-import com.flanks255.psu.crafting.CopyDataRecipe;
-import com.flanks255.psu.crafting.TargetNBTIngredient;
+import com.flanks255.psu.crafting.UpgradeRecipe;
 import com.flanks255.psu.data.Generator;
 import com.flanks255.psu.gui.PSUContainer;
 import com.flanks255.psu.gui.PSUGui;
+import com.flanks255.psu.inventory.StorageManager;
 import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.items.PocketStorageUnit;
 import com.flanks255.psu.network.PSUNetwork;
 import com.flanks255.psu.util.RecipeUnlocker;
-import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.network.simple.SimpleChannel;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.EntityItemPickupEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,44 +45,43 @@ public class PocketStorage
 {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MODID = "pocketstorage";
-    public static SimpleChannel NETWORK;
 
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
-    private static final DeferredRegister<RecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
+    private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
+    private static final DeferredRegister<RecipeSerializer<?>> RECIPES = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, MODID);
 
-    public static final RegistryObject<Item> PSU1 = ITEMS.register("psu_1", () -> new PocketStorageUnit(PSUTier.TIER1));
-    public static final RegistryObject<Item> PSU2 = ITEMS.register("psu_2", () -> new PocketStorageUnit( PSUTier.TIER2));
-    public static final RegistryObject<Item> PSU3 = ITEMS.register("psu_3", () -> new PocketStorageUnit( PSUTier.TIER3));
-    public static final RegistryObject<Item> PSU4 = ITEMS.register("psu_4", () -> new PocketStorageUnit( PSUTier.TIER4));
+    public static final DeferredItem<Item> PSU1 = ITEMS.register("psu_1", () -> new PocketStorageUnit(PSUTier.TIER1));
+    public static final DeferredItem<Item> PSU2 = ITEMS.register("psu_2", () -> new PocketStorageUnit( PSUTier.TIER2));
+    public static final DeferredItem<Item> PSU3 = ITEMS.register("psu_3", () -> new PocketStorageUnit( PSUTier.TIER3));
+    public static final DeferredItem<Item> PSU4 = ITEMS.register("psu_4", () -> new PocketStorageUnit( PSUTier.TIER4));
 
-    public static final RegistryObject<MenuType<PSUContainer>> PSUCONTAINER = CONTAINERS.register("psu_container", () -> IForgeMenuType.create(PSUContainer::fromNetwork));
+    public static final DeferredHolder<MenuType<?>, MenuType<PSUContainer>> PSUCONTAINER = CONTAINERS.register("psu_container", () -> IMenuTypeExtension.create(PSUContainer::fromNetwork));
 
-    public static final RegistryObject<RecipeSerializer<CopyDataRecipe>> UPGRADE_RECIPE = RECIPES.register("data_upgrade", CopyDataRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<UpgradeRecipe>> UPGRADE_RECIPE = RECIPES.register("upgrade", UpgradeRecipe.Serializer::new);
 
 
-    public PocketStorage() {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+    public PocketStorage(IEventBus bus) {
+        IEventBus neoBus = NeoForge.EVENT_BUS;
 
         ITEMS.register(bus);
         CONTAINERS.register(bus);
         RECIPES.register(bus);
 
         bus.addListener(Generator::gatherData);
-
-        MinecraftForge.EVENT_BUS.addListener(this::onCommandsRegister);
+        neoBus.addListener(this::onCommandsRegister);
+        bus.addListener(this::registerCaps);
+        bus.addListener(PSUNetwork::register);
 
         bus.addListener(this::setup);
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            bus.addListener(this::doClientStuff);
+            bus.addListener(this::menuScreenEvent);
             bus.addListener(this::creativeTabEvent);
         }
 
-        MinecraftForge.EVENT_BUS.addListener(this::pickupEvent);
-        MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.addListener(this::interactEvent);
+        neoBus.addListener(this::pickupEvent);
+        neoBus.addListener(this::interactEvent);
 
-        RecipeUnlocker.register(MODID, MinecraftForge.EVENT_BUS, 1);
+        RecipeUnlocker.register(MODID, neoBus, 1);
     }
 
     private void pickupEvent(EntityItemPickupEvent event) {
@@ -112,13 +110,10 @@ public class PocketStorage
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() ->
-            CraftingHelper.register(TargetNBTIngredient.Serializer.NAME, TargetNBTIngredient.SERIALIZER));
-        NETWORK = PSUNetwork.getNetworkChannel();
     }
 
-    private void doClientStuff(final FMLClientSetupEvent event) {
-        MenuScreens.register(PSUCONTAINER.get(), PSUGui::new);
+    private void menuScreenEvent(final RegisterMenuScreensEvent event) {
+        event.register(PSUCONTAINER.get(), PSUGui::new);
     }
 
     private void creativeTabEvent(final BuildCreativeModeTabContentsEvent event) {
@@ -128,5 +123,10 @@ public class PocketStorage
             event.accept(PSU3.get());
             event.accept(PSU4.get());
         }
+    }
+
+    private void registerCaps(final RegisterCapabilitiesEvent event) {
+        event.registerItem(Capabilities.ItemHandler.ITEM, (stack, ctx) -> StorageManager.get().getCapability(stack)
+                , PSU1, PSU2, PSU3, PSU4);
     }
 }
