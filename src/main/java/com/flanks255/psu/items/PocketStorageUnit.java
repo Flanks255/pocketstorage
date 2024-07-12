@@ -4,6 +4,7 @@ import com.flanks255.psu.gui.PSUContainer;
 import com.flanks255.psu.inventory.PSUData;
 import com.flanks255.psu.inventory.PSUItemHandler;
 import com.flanks255.psu.inventory.StorageManager;
+import com.flanks255.psu.util.CapHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
@@ -24,15 +25,13 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.player.EntityItemPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -110,32 +109,15 @@ public class PocketStorageUnit extends Item {
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext context) {
+    public @NotNull InteractionResult useOn(UseOnContext context) {
         if (!context.getLevel().isClientSide) {
             Level world = context.getLevel();
-            BlockState blockState = world.getBlockState(context.getClickedPos());
-            if (blockState.hasBlockEntity() && context.getPlayer() != null && context.getPlayer().isCrouching()) {
+            if (world.getBlockState(context.getClickedPos()).hasBlockEntity() && context.getPlayer() != null && context.getPlayer().isCrouching()) {
                 Optional<PSUItemHandler> handler = StorageManager.get().getHandler(context.getItemInHand());
-                BlockEntity blockEntity = world.getBlockEntity(context.getClickedPos());
-                Optional<IItemHandler> chestOptional = Optional.ofNullable(world.getCapability(Capabilities.ItemHandler.BLOCK, context.getClickedPos(), blockState, blockEntity, context.getClickedFace()));
-                handler.ifPresent((my) -> chestOptional.ifPresent((chest) -> {
-                    boolean movedItems = false;
-                    for (int i = 0; i < my.getSlots(); i++) {
-                        ItemStack stack = my.getStackInSlot(i);
-                        if (stack.isEmpty())
-                            continue;
-                        ItemStack backup = my.getStackInSlot(i);
-                        backup.setCount(1);
-                        stack.setCount(stack.getCount()-1);
-                        ItemStack remainder = ItemHandlerHelper.insertItemStacked(chest, stack, false );
-                        movedItems = true;
-                        if (remainder.isEmpty())
-                            my.getSlot(i).setCount(1);
-                        else
-                            my.getSlot(i).setCount(remainder.getCount()+1);
-                    }
-                    if (movedItems) {
-                        context.getLevel().playSound(null, context.getClickedPos(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.5F, 0.5F + (random.nextFloat() * 0.5F));
+                Optional<IItemHandler> chestOptional = CapHelper.getItemHandler(world, context.getClickedPos(), context.getClickedFace());
+                handler.ifPresent(myItems -> chestOptional.ifPresent(chestHandler -> {
+                    if (giveItems(myItems, chestHandler)) {
+                        playSound(context.getLevel(), context.getClickedPos());
                         context.getPlayer().swing(context.getHand(), true);
                     }
                 }));
@@ -143,6 +125,29 @@ public class PocketStorageUnit extends Item {
                 openGUI(context.getLevel(), context.getPlayer(), context.getHand());
         }
         return InteractionResult.FAIL;
+    }
+
+    private boolean giveItems(PSUItemHandler from, IItemHandler to) {
+        boolean movedItems = false;
+        for (int i = 0; i < from.getSlots(); i++) {
+            ItemStack stack = from.getStackInSlot(i);
+            if (stack.isEmpty())
+                continue;
+            ItemStack backup = from.getStackInSlot(i);
+            backup.setCount(1);
+            stack.setCount(stack.getCount()-1);
+            ItemStack remainder = ItemHandlerHelper.insertItemStacked(to, stack, false );
+            movedItems = true;
+            if (remainder.isEmpty())
+                from.getSlot(i).setCount(1);
+            else
+                from.getSlot(i).setCount(remainder.getCount()+1);
+        }
+        return movedItems;
+    }
+
+    private void playSound(Level level, BlockPos blockPos) {
+        level.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.5F, 0.5F + (random.nextFloat() * 0.5F));
     }
 
     public void onLeftClickEvent(PlayerInteractEvent.LeftClickBlock event) {
@@ -160,28 +165,30 @@ public class PocketStorageUnit extends Item {
     private void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
         if (!event.getLevel().isClientSide) {
             Level world = event.getLevel();
-            BlockState blockState = world.getBlockState(event.getPos());
-            if (blockState.hasBlockEntity()) {
-                BlockEntity blockEntity = world.getBlockEntity(event.getPos());
-                Optional<IItemHandler> chestOptional = Optional.ofNullable(world.getCapability(Capabilities.ItemHandler.BLOCK, event.getPos(), blockState, blockEntity, event.getFace()));
+            if (world.getBlockState(event.getPos()).hasBlockEntity()) {
+                Optional<IItemHandler> chestOptional = CapHelper.getItemHandler(world, event.getPos(), event.getFace());
                 Optional<PSUItemHandler> handler = StorageManager.get().getHandler(event.getEntity().getMainHandItem());
-                handler.ifPresent((my) -> chestOptional.ifPresent((chest) -> {
-                    boolean movedItems = false;
-                    for (int i = 0; i < chest.getSlots(); i++) {
-                        ItemStack stack = chest.getStackInSlot(i);
-                        if (stack.isEmpty())
-                            continue;
-                        if (my.hasItem(stack)) {
-                            ItemStack newStack = chest.extractItem(i, stack.getCount(), false);
-                            my.insertItemSlotless(newStack, false, false);
-                            movedItems = true;
-                        }
-                    }
-                    if (movedItems)
-                        event.getLevel().playSound(null, event.getPos(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.5F, 0.5F + (random.nextFloat() * 0.5F));
+                handler.ifPresent(myItems -> chestOptional.ifPresent(chestHandler -> {
+                    if (takeItems(chestHandler, myItems))
+                        playSound(event.getLevel(), event.getPos());
                 }));
             }
         }
+    }
+
+    private boolean takeItems(IItemHandler from, PSUItemHandler to) {
+        boolean movedItems = false;
+        for (int i = 0; i < from.getSlots(); i++) {
+            ItemStack stack = from.getStackInSlot(i);
+            if (stack.isEmpty())
+                continue;
+            if (to.hasItem(stack)) {
+                ItemStack newStack = from.extractItem(i, stack.getCount(), false);
+                to.insertItemSlotless(newStack, false, false);
+                movedItems = true;
+            }
+        }
+        return movedItems;
     }
 
     public static PSUData getData(ItemStack stack) {
