@@ -1,6 +1,8 @@
 package com.flanks255.psu.inventory;
 
 import com.flanks255.psu.items.PSUTier;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -29,11 +31,11 @@ public class PSUData {
         tier = PSUTier.values()[Math.min(incomingNBT.getInt("Tier"), PSUTier.TIER4.ordinal())];
 
         inventory = new PSUItemHandler(tier);
-        inventory.deserializeNBT(incomingNBT.getCompound("Inventory"));
+        inventory.deserializeNBT(RegistryAccess.EMPTY, incomingNBT.getCompound("Inventory"));
         optional = Optional.of(inventory);
 
         if (incomingNBT.contains("Metadata"))
-            meta.deserializeNBT(incomingNBT.getCompound("Metadata"));
+            meta.deserializeNBT(RegistryAccess.EMPTY, incomingNBT.getCompound("Metadata"));
     }
 
     public UUID getUuid() {
@@ -85,9 +87,9 @@ public class PSUData {
         nbt.putString("StringUUID", uuid.toString());
         nbt.putInt("Tier", tier.ordinal());
 
-        nbt.put("Inventory", inventory.serializeNBT());
+        nbt.put("Inventory", inventory.serializeNBT(RegistryAccess.EMPTY));
 
-        nbt.put("Metadata", meta.serializeNBT());
+        nbt.put("Metadata", meta.serializeNBT(RegistryAccess.EMPTY));
 
         return nbt;
     }
@@ -125,7 +127,7 @@ public class PSUData {
         }
 
         @Override
-        public CompoundTag serializeNBT() {
+        public CompoundTag serializeNBT(HolderLookup.Provider provider) {
             CompoundTag nbt = new CompoundTag();
 
             nbt.putString("firstPlayer", firstAccessedPlayer);
@@ -137,7 +139,7 @@ public class PSUData {
         }
 
         @Override
-        public void deserializeNBT(CompoundTag nbt) {
+        public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
             firstAccessedPlayer = nbt.getString("firstPlayer");
             firstAccessedTime = nbt.getLong("firstTime");
             lastAccessedPlayer = nbt.getString("lastPlayer");

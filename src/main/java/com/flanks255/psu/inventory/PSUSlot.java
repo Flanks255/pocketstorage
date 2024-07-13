@@ -1,5 +1,6 @@
 package com.flanks255.psu.inventory;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,7 +27,7 @@ public class PSUSlot {
     }
 
     public boolean checkItem(ItemStack stack) {
-        return (stack.is(item) && !stack.hasTag());
+        return (stack.is(item) && !stack.has(DataComponents.CUSTOM_DATA));
     }
     public PSUSlot(CompoundTag tag) {
         readNBT(tag);
@@ -66,7 +67,7 @@ public class PSUSlot {
 
     public void readNBT(CompoundTag tag) {
         if (tag.contains("Item"))
-            item = BuiltInRegistries.ITEM.get(new ResourceLocation(tag.getString("Item")));
+            item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString("Item")));
         else {
             return;
         }

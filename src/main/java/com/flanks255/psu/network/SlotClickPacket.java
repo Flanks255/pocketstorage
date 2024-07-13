@@ -3,35 +3,33 @@ package com.flanks255.psu.network;
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.gui.PSUContainer;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record SlotClickPacket(int slotID, boolean shift, boolean ctrl, boolean rightClick) implements CustomPacketPayload {
-    public static final ResourceLocation ID = new ResourceLocation(PocketStorage.MODID, "slotclick");
-    public SlotClickPacket(final FriendlyByteBuf buffer) {
-        this(buffer.readInt(), buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean());
-    }
+    public static final Type<SlotClickPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(PocketStorage.MODID, "slotclick"));
 
-    public static void handle(final SlotClickPacket packet, PlayPayloadContext ctx) {
-        ctx.workHandler().submitAsync(
+    public static final StreamCodec<FriendlyByteBuf, SlotClickPacket> CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, SlotClickPacket::slotID,
+            ByteBufCodecs.BOOL, SlotClickPacket::shift,
+            ByteBufCodecs.BOOL, SlotClickPacket::ctrl,
+            ByteBufCodecs.BOOL, SlotClickPacket::rightClick,
+            SlotClickPacket::new
+            );
+
+
+    public static void handle(final SlotClickPacket packet, IPayloadContext ctx) {
+        ctx.enqueueWork(
             () -> {
-                ctx.player().ifPresent(p -> ((PSUContainer) p.containerMenu).networkSlotClick(packet.slotID, packet.shift, packet.ctrl, packet.rightClick));
+                ((PSUContainer) ctx.player().containerMenu).networkSlotClick(packet.slotID, packet.shift, packet.ctrl, packet.rightClick);
             });
     }
 
     @Override
-    public void write(FriendlyByteBuf buffer) {
-        buffer.writeInt(slotID);
-        buffer.writeBoolean(shift);
-        buffer.writeBoolean(ctrl);
-        buffer.writeBoolean(rightClick);
-
-    }
-
-    @Override
-    public @NotNull ResourceLocation id() {
-        return ID;
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

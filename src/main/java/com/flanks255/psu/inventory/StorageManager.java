@@ -2,6 +2,7 @@ package com.flanks255.psu.inventory;
 
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.items.PSUTier;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -56,8 +57,8 @@ public class StorageManager extends SavedData {
     }
 
     public Optional<PSUItemHandler> getHandler(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("UUID")) {
-            UUID uuid = stack.getTag().getUUID("UUID");
+        if (stack.has(PocketStorage.PSU_UUID.get())) {
+            UUID uuid = stack.get(PocketStorage.PSU_UUID.get());
             if (data.containsKey(uuid))
                 return Optional.of(data.get(uuid).getHandler());
         }
@@ -66,8 +67,8 @@ public class StorageManager extends SavedData {
     }
 
     public IItemHandler getCapability(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("UUID")) {
-            UUID uuid = stack.getTag().getUUID("UUID");
+        if (stack.has(PocketStorage.PSU_UUID.get())) {
+            UUID uuid = stack.get(PocketStorage.PSU_UUID.get());
             if (data.containsKey(uuid))
                 return data.get(uuid).getHandler();
         }
@@ -75,7 +76,7 @@ public class StorageManager extends SavedData {
         return null;
     }
 
-    public static StorageManager load(CompoundTag nbt) {
+    public static StorageManager load(CompoundTag nbt, HolderLookup.Provider pRegistries) {
         if (nbt.contains("PSUS")) {
             ListTag list = nbt.getList("PSUS", Tag.TAG_COMPOUND);
             list.forEach((psuNBT) -> PSUData.fromNBT((CompoundTag) psuNBT).ifPresent((psu) -> data.put(psu.getUuid(), psu)));
@@ -85,7 +86,7 @@ public class StorageManager extends SavedData {
 
     @Override
     @Nonnull
-    public CompoundTag save(CompoundTag compound) {
+    public CompoundTag save(CompoundTag compound,  HolderLookup.Provider pRegistries) {
         ListTag backpacks = new ListTag();
         data.forEach(((uuid, backpackData) -> backpacks.add(backpackData.toNBT())));
         compound.put("PSUS", backpacks);

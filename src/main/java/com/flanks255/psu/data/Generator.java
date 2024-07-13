@@ -8,7 +8,7 @@ public class Generator {
         DataGenerator generator = event.getGenerator();
 
         generator.addProvider(true, new PSUItemModels(generator, event.getExistingFileHelper()));
-        generator.addProvider(true, new PSURecipes(generator));
+        generator.addProvider(true, new PSURecipes(generator, event.getLookupProvider()));
         generator.addProvider(true, new PSULang(generator));
     }
 }

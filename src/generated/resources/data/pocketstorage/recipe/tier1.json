@@ -3,16 +3,16 @@
   "category": "misc",
   "key": {
     "A": {
-      "tag": "forge:ingots/iron"
+      "tag": "c:ingots/iron"
     },
     "B": {
       "item": "minecraft:piston"
     },
     "C": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:dusts/redstone"
     },
     "D": {
-      "tag": "forge:chests"
+      "tag": "c:chests"
     }
   },
   "pattern": [
@@ -21,7 +21,8 @@
     "ABA"
   ],
   "result": {
-    "item": "pocketstorage:psu_1"
+    "count": 1,
+    "id": "pocketstorage:psu_1"
   },
   "show_notification": false
 }

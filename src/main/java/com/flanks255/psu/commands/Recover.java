@@ -1,5 +1,6 @@
 package com.flanks255.psu.commands;
 
+import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.inventory.PSUData;
 import com.flanks255.psu.inventory.StorageManager;
 import com.flanks255.psu.util.PSUtils;
@@ -42,7 +43,7 @@ public class Recover {
 
             data.ifPresent(psu -> {
                 ItemStack stack = new ItemStack(psu.getTier().item.get());
-                stack.getOrCreateTag().putUUID("UUID", psu.getUuid());
+                stack.set(PocketStorage.PSU_UUID.get(), psu.getUuid());
 
                 ItemHandlerHelper.giveItemToPlayer(player, stack);
             });

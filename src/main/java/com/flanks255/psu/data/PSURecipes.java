@@ -6,6 +6,7 @@ import com.flanks255.psu.util.NoAdvRecipeOutput;
 import com.flanks255.psu.util.RecipeInjector;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -17,12 +18,15 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+import java.util.concurrent.CompletableFuture;
+
 public class PSURecipes extends RecipeProvider {
-    public PSURecipes(DataGenerator pGenerator) {
-        super(pGenerator.getPackOutput());
+    public PSURecipes(DataGenerator pGenerator, CompletableFuture<HolderLookup.Provider> pRegistries) {
+        super(pGenerator.getPackOutput(), pRegistries);
     }
     @Override
-    protected void buildRecipes(RecipeOutput theirOutput) {
+    protected void buildRecipes(@Nonnull RecipeOutput theirOutput) {
         RecipeOutput output = new NoAdvRecipeOutput(theirOutput);
 
         Criterion<InventoryChangeTrigger.TriggerInstance> lul = has(Items.AIR);
@@ -37,7 +41,7 @@ public class PSURecipes extends RecipeProvider {
             .define('D', Tags.Items.CHESTS)
             .unlockedBy("", lul)
             .showNotification(false)
-            .save(output, new ResourceLocation(PocketStorage.MODID, "tier1"));
+            .save(output, ResLoc("tier1"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU2.get())
             .pattern("ABA")
@@ -49,7 +53,7 @@ public class PSURecipes extends RecipeProvider {
             .define('D', PocketStorage.PSU1.get())
             .unlockedBy("", lul)
             .showNotification(false)
-            .save(StorageUpgrade(output), new ResourceLocation(PocketStorage.MODID, "tier2"));
+            .save(StorageUpgrade(output), ResLoc("tier2"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU3.get())
             .pattern("ABA")
@@ -61,7 +65,7 @@ public class PSURecipes extends RecipeProvider {
             .define('D', PocketStorage.PSU2.get())
             .unlockedBy("", lul)
             .showNotification(false)
-            .save(StorageUpgrade(output), new ResourceLocation(PocketStorage.MODID, "tier3"));
+            .save(StorageUpgrade(output), ResLoc("tier3"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, PocketStorage.PSU4.get())
             .pattern("ABA")
@@ -73,11 +77,15 @@ public class PSURecipes extends RecipeProvider {
             .define('D', PocketStorage.PSU3.get())
             .unlockedBy("", lul)
             .showNotification(false)
-            .save(StorageUpgrade(output), new ResourceLocation(PocketStorage.MODID, "tier4"));
+            .save(StorageUpgrade(output), ResLoc("tier4"));
     }
 
     @NotNull
     private static RecipeInjector<ShapedRecipe> StorageUpgrade(RecipeOutput output) {
         return new RecipeInjector<>(output, UpgradeRecipe::new);
+    }
+
+    public static ResourceLocation ResLoc(String name) {
+        return ResourceLocation.fromNamespaceAndPath(PocketStorage.MODID, name);
     }
 }

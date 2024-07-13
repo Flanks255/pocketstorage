@@ -10,13 +10,16 @@ import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.items.PocketStorageUnit;
 import com.flanks255.psu.network.PSUNetwork;
 import com.flanks255.psu.util.RecipeUnlocker;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.Mod;
@@ -29,7 +32,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.entity.player.EntityItemPickupEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -37,14 +40,16 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import java.util.UUID;
 
 @Mod("pocketstorage")
 public class PocketStorage
 {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MODID = "pocketstorage";
+
+    public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(MODID);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> PSU_UUID = COMPONENTS.register("psu_uuid", () -> DataComponentType.<UUID>builder().persistent(UUIDUtil.CODEC).networkSynchronized(UUIDUtil.STREAM_CODEC).build());
 
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
@@ -66,6 +71,7 @@ public class PocketStorage
         ITEMS.register(bus);
         CONTAINERS.register(bus);
         RECIPES.register(bus);
+        COMPONENTS.register(bus);
 
         bus.addListener(Generator::gatherData);
         neoBus.addListener(this::onCommandsRegister);
@@ -84,14 +90,15 @@ public class PocketStorage
         RecipeUnlocker.register(MODID, neoBus, 1);
     }
 
-    private void pickupEvent(EntityItemPickupEvent event) {
-        if (event.getEntity().containerMenu instanceof PSUContainer || event.getEntity().isShiftKeyDown())
+    private void pickupEvent(ItemEntityPickupEvent.Pre event) {
+        if (event.getPlayer().containerMenu instanceof PSUContainer || event.getPlayer().isShiftKeyDown())
             return;
-        Inventory playerInv = event.getEntity().getInventory();
+        if (event.getItemEntity().hasPickUpDelay())
+            return;
+        Inventory playerInv = event.getPlayer().getInventory();
         for (int i = 0; i <= 35; i++) {
             ItemStack stack = playerInv.getItem(i);
             if (stack.getItem() instanceof PocketStorageUnit && ((PocketStorageUnit) stack.getItem()).pickupEvent(event, stack)) {
-                event.setResult(Event.Result.ALLOW);
                 return;
             }
         }

@@ -1,0 +1,27 @@
+{
+  "type": "pocketstorage:upgrade",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "c:ingots/gold"
+    },
+    "B": {
+      "item": "minecraft:piston"
+    },
+    "C": {
+      "tag": "c:chests"
+    },
+    "D": {
+      "item": "pocketstorage:psu_1"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "pocketstorage:psu_2"
+  }
+}

@@ -2,19 +2,16 @@ package com.flanks255.psu.crafting;
 
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.items.PocketStorageUnit;
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapedRecipePattern;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.item.crafting.*;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 
 public class UpgradeRecipe extends ShapedRecipe {
@@ -26,54 +23,56 @@ public class UpgradeRecipe extends ShapedRecipe {
         super(shapedRecipe.getGroup(), shapedRecipe.category(), shapedRecipe.pattern, shapedRecipe.getResultItem(RegistryAccess.EMPTY));    }
 
 
+    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inv, RegistryAccess thing) {
-        final ItemStack craftingResult = super.assemble(inv, thing);
+    public ItemStack assemble(@Nonnull CraftingInput input, @Nonnull HolderLookup.Provider provider) {
+        final ItemStack craftingResult = super.assemble(input, provider);
         ItemStack dataSource = ItemStack.EMPTY;
 
         if (!craftingResult.isEmpty()) {
-            for (int i = 0; i < inv.getContainerSize(); i++) {
-                final ItemStack item = inv.getItem(i);
+            for (int i = 0; i < input.size(); i++) {
+                final ItemStack item = input.getItem(i);
                 if (!item.isEmpty() && item.getItem() instanceof PocketStorageUnit) {
                     dataSource = item;
                     break;
                 }
             }
 
-            if (!dataSource.isEmpty() && dataSource.hasTag()) {
-                craftingResult.setTag(dataSource.getTag().copy());
+            if (!dataSource.isEmpty()) {
+                if (dataSource.has(PocketStorage.PSU_UUID.get())) {
+                    craftingResult.set(PocketStorage.PSU_UUID.get(), dataSource.get(PocketStorage.PSU_UUID.get()));
+                }
+                else if (dataSource.has(DataComponents.CUSTOM_DATA)){ //Legacy support
+                    if (dataSource.get(DataComponents.CUSTOM_DATA).contains("UUID")){
+                        craftingResult.set(PocketStorage.PSU_UUID.get(), dataSource.get(DataComponents.CUSTOM_DATA).copyTag().getUUID("UUID"));
+                    }
+                }
             }
         }
 
         return craftingResult;
     }
 
+    @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return PocketStorage.UPGRADE_RECIPE.get();
     }
 
     public static class Serializer implements RecipeSerializer<UpgradeRecipe> {
-        private static final Codec<UpgradeRecipe> CODEC = ShapedRecipe.Serializer.CODEC.xmap(UpgradeRecipe::new, UpgradeRecipe::new);
-        @Nullable
-        @Override
-        public UpgradeRecipe fromNetwork(FriendlyByteBuf buffer) {
-            return new UpgradeRecipe(RecipeSerializer.SHAPED_RECIPE.fromNetwork(buffer));
-        }
+        private static final MapCodec<UpgradeRecipe> CODEC = ShapedRecipe.Serializer.CODEC.xmap(UpgradeRecipe::new, UpgradeRecipe::new);
+        private static final StreamCodec<RegistryFriendlyByteBuf, UpgradeRecipe> STREAM_CODEC = RecipeSerializer.SHAPED_RECIPE.streamCodec().map(UpgradeRecipe::new, UpgradeRecipe::new);
 
         @Override
-        public @NotNull Codec<UpgradeRecipe> codec() {
+        @Nonnull
+        public MapCodec<UpgradeRecipe> codec() {
             return CODEC;
         }
 
         @Override
-        public void toNetwork(@NotNull FriendlyByteBuf buffer, @NotNull UpgradeRecipe recipe) {
-            try {
-                RecipeSerializer.SHAPED_RECIPE.toNetwork(buffer, recipe);
-            } catch (Exception exception) {
-                PocketStorage.LOGGER.info("Error writing CopyData Recipe to packet: ", exception);
-                throw exception;
-            }
+        @Nonnull
+        public StreamCodec<RegistryFriendlyByteBuf, UpgradeRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 }

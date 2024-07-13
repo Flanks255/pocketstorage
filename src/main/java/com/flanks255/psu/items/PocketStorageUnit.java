@@ -1,5 +1,6 @@
 package com.flanks255.psu.items;
 
+import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.gui.PSUContainer;
 import com.flanks255.psu.inventory.PSUData;
 import com.flanks255.psu.inventory.PSUItemHandler;
@@ -9,6 +10,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,20 +24,19 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.event.entity.player.EntityItemPickupEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -48,12 +50,8 @@ public class PocketStorageUnit extends Item {
     private BlockPos lastInteractPos = new BlockPos(0,0,0);
 
     public PocketStorageUnit(PSUTier tierIn) {
-        super(new Item.Properties().stacksTo(1));
+        super(new Item.Properties().stacksTo(1).rarity(tierIn.rarity));
         this.tier = tierIn;
-    }
-    @Override
-    public Rarity getRarity(ItemStack pStack) {
-        return tier.rarity;
     }
 
     private boolean hasTranslation(String key) {
@@ -62,8 +60,8 @@ public class PocketStorageUnit extends Item {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(@Nonnull ItemStack stack, Item.@NotNull TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         String translationKey = getDescriptionId();
 
         if (Screen.hasShiftDown()) {
@@ -79,22 +77,24 @@ public class PocketStorageUnit extends Item {
             tooltip.add(Component.translatable("pocketstorage.util.shift", Component.translatable("pocketstorage.util.key_shift").withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC)).withStyle(ChatFormatting.GRAY));
         }
 
-        if (flagIn.isAdvanced() && stack.getTag() != null && stack.getTag().contains("UUID")) {
-            UUID uuid = stack.getTag().getUUID("UUID");
+        if (flagIn.isAdvanced() && stack.has(PocketStorage.PSU_UUID.get())) {
+            UUID uuid = stack.get(PocketStorage.PSU_UUID.get());
             tooltip.add(Component.literal("ID: " + uuid.toString().substring(0,8)).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
         }
     }
 
-    public boolean pickupEvent(EntityItemPickupEvent event, ItemStack stack) {
+    public boolean pickupEvent(ItemEntityPickupEvent.Pre event, ItemStack stack) {
         Optional<PSUItemHandler> handlerOpt = StorageManager.get().getHandler(stack);
 
         return handlerOpt.map(handler -> {
-            ItemStack pickedUp = event.getItem().getItem();
+            ItemStack pickedUp = event.getItemEntity().getItem();
             for (int i = 0; i < handler.getSlots(); i++) {
                 ItemStack slot = handler.getStackInSlot(i);
-                if (ItemHandlerHelper.canItemStacksStack(slot, pickedUp)) {
+                if (ItemStack.isSameItemSameComponents(slot, pickedUp)) {
                     handler.insertItem(i, pickedUp, false);
                     pickedUp.setCount(0);
+                    event.getPlayer().level().playSound(null, event.getPlayer().blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((random.nextFloat() - random.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+
                     return true;
                 }
             }
@@ -195,12 +195,27 @@ public class PocketStorageUnit extends Item {
         if (!(stack.getItem() instanceof PocketStorageUnit))
             return null;
         UUID uuid;
-        CompoundTag tag = stack.getOrCreateTag();
-        if (!tag.contains("UUID")) {
+
+        if (stack.has(PocketStorage.PSU_UUID.get())) {
+            uuid = stack.get(PocketStorage.PSU_UUID.get());
+        }
+        else if (stack.has(DataComponents.CUSTOM_DATA)) { //Legacy support
+            CompoundTag tag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+            if (tag.contains("UUID")) {
+                uuid = tag.getUUID("UUID");
+                stack.set(PocketStorage.PSU_UUID.get(), uuid);
+                stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, $ -> $.update(compoundTag -> compoundTag.remove("UUID")));
+            }
+            else {
+                uuid = UUID.randomUUID();
+                stack.set(PocketStorage.PSU_UUID.get(), uuid);
+            }
+        }
+        else {
             uuid = UUID.randomUUID();
-            tag.putUUID("UUID", uuid);
-        } else
-            uuid = tag.getUUID("UUID");
+            stack.set(PocketStorage.PSU_UUID.get(), uuid);
+        }
+
         return StorageManager.get().getOrCreateStorage(uuid, ((PocketStorageUnit) stack.getItem()).tier);
     }
 
@@ -222,29 +237,8 @@ public class PocketStorageUnit extends Item {
 
             playerIn.openMenu(new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
                     new PSUContainer(windowId, playerInventory, uuid, data.getHandler()), stack.getHoverName()),
-                packetBuffer -> packetBuffer.writeNbt(data.getHandler().serializeNBT()).writeUUID(uuid).writeInt(data.getTier().ordinal())
+                packetBuffer -> packetBuffer.writeNbt(data.getHandler().serializeNBT(RegistryAccess.EMPTY)).writeUUID(uuid).writeInt(data.getTier().ordinal())
             );
         }
     }
-
-
-/*    static class PSUCaps implements ICapabilityProvider {
-        public PSUCaps(ItemStack stack) {
-            this.stack = stack;
-        }
-        private final ItemStack stack;
-        private LazyOptional<IItemHandler> lazyOptional = LazyOptional.empty();
-
-        @Nonnull
-        @Override
-        public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-            if (cap == ForgeCapabilities.ITEM_HANDLER) {
-                if(!lazyOptional.isPresent())
-                    lazyOptional = StorageManager.get().getCapability(stack);
-                return lazyOptional.cast();
-            }
-            else
-                return LazyOptional.empty();
-        }
-    }*/
 }

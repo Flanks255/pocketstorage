@@ -34,7 +34,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
         super.init();
 
         Button.OnPress slotClick = button -> {
-            PacketDistributor.SERVER.noArg().send(new SlotClickPacket(((GUISlot)button).slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false));
+            PacketDistributor.sendToServer(new SlotClickPacket(((GUISlot)button).slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false));
             menu.networkSlotClick(((GUISlot)button).slot+scroll, Screen.hasShiftDown(), Screen.hasControlDown(), false);
         };
 
@@ -50,7 +50,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
         addRenderableWidget(new ScrollButton(leftPos + 152,topPos + 55, 16,37, false, (A) ->  scroll = scroll >= menu.handler.getSlots()-8?menu.handler.getSlots()-8:scroll + 4 ));
     }
 
-    private final ResourceLocation GUI = new ResourceLocation(PocketStorage.MODID, "textures/gui/psugui.png");
+    private final ResourceLocation GUI = ResourceLocation.fromNamespaceAndPath(PocketStorage.MODID, "textures/gui/psugui.png");
     private int scroll = 0;
 
     @Override
@@ -94,7 +94,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
             up = upIn;
         }
         private final boolean up;
-        private final ResourceLocation TEX = new ResourceLocation(PocketStorage.MODID, "textures/gui/buttons.png");
+        private final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(PocketStorage.MODID, "textures/gui/buttons.png");
 
 
         @Override
@@ -121,7 +121,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
                     this.onClick(pMouseX, pMouseY);
                     return true;
                 } else if (pButton == 1 && this.clicked(pMouseX,pMouseY)) {
-                    PacketDistributor.SERVER.noArg().send(new SlotClickPacket(slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true));
+                    PacketDistributor.sendToServer(new SlotClickPacket(slot + scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true));
                     menu.networkSlotClick(slot+scroll, Screen.hasShiftDown(), Screen.hasControlDown(), true);
                     return true;
                 }

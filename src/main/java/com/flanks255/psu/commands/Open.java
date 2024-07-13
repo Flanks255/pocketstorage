@@ -11,6 +11,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -42,7 +43,7 @@ public class Open {
 
             data.ifPresent(psu -> player.openMenu(new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
                     new PSUContainer(windowId, playerInventory, uuid, psu.getHandler()), Component.literal(psu.getTier().name)),
-                packetBuffer -> packetBuffer.writeNbt(psu.getHandler().serializeNBT()).writeUUID(uuid).writeInt(psu.getTier().ordinal())));
+                packetBuffer -> packetBuffer.writeNbt(psu.getHandler().serializeNBT(RegistryAccess.EMPTY)).writeUUID(uuid).writeInt(psu.getTier().ordinal())));
         } else
             ctx.getSource().sendFailure(Component.translatable("pocketstorage.util.invalid_uuid"));
         return 0;

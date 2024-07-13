@@ -2,14 +2,15 @@ package com.flanks255.psu.inventory;
 
 import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.items.PocketStorageUnit;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -62,7 +63,7 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
 
     public boolean hasItem(ItemStack stack) {
         for (PSUSlot slot : slots) {
-            if (!slot.isEmpty() && ItemHandlerHelper.canItemStacksStack(slot.getStack(), stack))
+            if (!slot.isEmpty() && ItemStack.isSameItemSameComponents(slot.getStack(), stack))
                 return true;
         }
         return false;
@@ -81,18 +82,18 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
     }
 
     public List<PSUSlot> getMatchingSlots(@Nonnull ItemStack stack) {
-        return slots.stream().filter(s -> ItemHandlerHelper.canItemStacksStack(s.getStack(), stack)).toList();
+        return slots.stream().filter(s -> ItemStack.isSameItemSameComponents(s.getStack(), stack)).toList();
     }
 
     public ItemStack insertItemSlotless(@Nonnull ItemStack stack, boolean allowEmpty, boolean allowVoid) {
-        if (stack.isEmpty() || stack.hasTag())
+        if (stack.isEmpty() || stack.has(DataComponents.CUSTOM_DATA))
             return ItemStack.EMPTY;
 
         boolean foundAny = false;
         int count = stack.getCount();
 
         for (PSUSlot slot : slots) {
-            if (!slot.isEmpty() && ItemHandlerHelper.canItemStacksStack(slot.getStack(), stack)) {
+            if (!slot.isEmpty() && ItemStack.isSameItemSameComponents(slot.getStack(), stack)) {
                 //Found matching item, insert it.
                 foundAny = true;
 
@@ -186,14 +187,14 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
 
     @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        return !stack.hasTag() && !(stack.getItem() instanceof PocketStorageUnit);
+        return !stack.has(DataComponents.CUSTOM_DATA) && !(stack.getItem() instanceof PocketStorageUnit);
     }
 
     private void onContentsChanged() {
         StorageManager.get().setDirty();
     }
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         ListTag tagList = new ListTag();
 
         for (PSUSlot slot : slots){
@@ -214,7 +215,7 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         if (nbt.contains("Slots")) {
             ListTag tagList = nbt.getList("Slots", Tag.TAG_COMPOUND);
 

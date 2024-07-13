@@ -1,11 +1,11 @@
 package com.flanks255.psu.network;
 
 import com.flanks255.psu.PocketStorage;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 public class PSUNetwork {
-    public static void register(final RegisterPayloadHandlerEvent event) {
+    public static void register(final RegisterPayloadHandlersEvent event) {
         event.registrar(PocketStorage.MODID)
-            .play(SlotClickPacket.ID, SlotClickPacket::new, handler -> handler.server(SlotClickPacket::handle));
+                .playToServer(SlotClickPacket.TYPE, SlotClickPacket.CODEC, SlotClickPacket::handle);
     }
 }

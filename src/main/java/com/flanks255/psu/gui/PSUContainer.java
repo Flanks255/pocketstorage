@@ -4,6 +4,8 @@ import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.inventory.PSUItemHandler;
 import com.flanks255.psu.items.PSUTier;
 import com.flanks255.psu.util.PSUtils;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -29,7 +31,7 @@ public class PSUContainer extends AbstractContainerMenu {
         UUID uuidIn = data.readUUID();
         PSUTier tier = PSUTier.values()[data.readInt()];
         PSUItemHandler handler = new PSUItemHandler(tier);
-        handler.deserializeNBT(nbt);
+        handler.deserializeNBT(RegistryAccess.EMPTY, nbt);
         return new PSUContainer(windowId, playerInventory, uuidIn, handler);
     }
     public PSUContainer(final int windowId, final Inventory playerInventory, UUID uuidIn, PSUItemHandler handlerIn) {
@@ -55,7 +57,7 @@ public class PSUContainer extends AbstractContainerMenu {
         if (slot >= 0 && slot <= handler.getSlots()) {
             if (!getCarried().isEmpty()) {
                 ItemStack incoming = getCarried();
-                if (incoming.hasTag() && playerInv.player.level().isClientSide()) {
+                if (incoming.has(DataComponents.CUSTOM_DATA) && playerInv.player.level().isClientSide()) {
                     playerInv.player.sendSystemMessage(Component.translatable("pocketstorage.util.no_data_items"));
                     return;
                 }
