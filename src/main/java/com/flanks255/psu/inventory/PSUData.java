@@ -26,16 +26,16 @@ public class PSUData {
     }
 
     //create from nbt
-    public PSUData(UUID uuidIn, CompoundTag incomingNBT) {
+    public PSUData(UUID uuidIn, CompoundTag incomingNBT, HolderLookup.Provider registryAccess) {
         uuid = uuidIn;
         tier = PSUTier.values()[Math.min(incomingNBT.getInt("Tier"), PSUTier.TIER4.ordinal())];
 
         inventory = new PSUItemHandler(tier);
-        inventory.deserializeNBT(RegistryAccess.EMPTY, incomingNBT.getCompound("Inventory"));
+        inventory.deserializeNBT(registryAccess, incomingNBT.getCompound("Inventory"));
         optional = Optional.of(inventory);
 
         if (incomingNBT.contains("Metadata"))
-            meta.deserializeNBT(RegistryAccess.EMPTY, incomingNBT.getCompound("Metadata"));
+            meta.deserializeNBT(registryAccess, incomingNBT.getCompound("Metadata"));
     }
 
     public UUID getUuid() {
@@ -71,25 +71,25 @@ public class PSUData {
         return tier;
     }
 
-    public static Optional<PSUData> fromNBT(CompoundTag nbt) {
+    public static Optional<PSUData> fromNBT(CompoundTag nbt, HolderLookup.Provider registryAccess) {
         if (nbt.contains("UUID")) {
             UUID uuid = nbt.getUUID("UUID");
-            return Optional.of(new PSUData(uuid, nbt));
+            return Optional.of(new PSUData(uuid, nbt, registryAccess));
         }
         return Optional.empty();
     }
 
 
-    public CompoundTag toNBT() {
+    public CompoundTag toNBT(HolderLookup.Provider registryAccess) {
         CompoundTag nbt = new CompoundTag();
 
         nbt.putUUID("UUID", uuid);
         nbt.putString("StringUUID", uuid.toString());
         nbt.putInt("Tier", tier.ordinal());
 
-        nbt.put("Inventory", inventory.serializeNBT(RegistryAccess.EMPTY));
+        nbt.put("Inventory", inventory.serializeNBT(registryAccess));
 
-        nbt.put("Metadata", meta.serializeNBT(RegistryAccess.EMPTY));
+        nbt.put("Metadata", meta.serializeNBT(registryAccess));
 
         return nbt;
     }

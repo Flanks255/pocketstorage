@@ -31,7 +31,7 @@ public class PSUContainer extends AbstractContainerMenu {
         UUID uuidIn = data.readUUID();
         PSUTier tier = PSUTier.values()[data.readInt()];
         PSUItemHandler handler = new PSUItemHandler(tier);
-        handler.deserializeNBT(RegistryAccess.EMPTY, nbt);
+        handler.deserializeNBT(playerInventory.player.registryAccess(), nbt);
         return new PSUContainer(windowId, playerInventory, uuidIn, handler);
     }
     public PSUContainer(final int windowId, final Inventory playerInventory, UUID uuidIn, PSUItemHandler handlerIn) {

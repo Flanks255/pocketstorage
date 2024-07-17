@@ -43,7 +43,7 @@ public class Open {
 
             data.ifPresent(psu -> player.openMenu(new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
                     new PSUContainer(windowId, playerInventory, uuid, psu.getHandler()), Component.literal(psu.getTier().name)),
-                packetBuffer -> packetBuffer.writeNbt(psu.getHandler().serializeNBT(RegistryAccess.EMPTY)).writeUUID(uuid).writeInt(psu.getTier().ordinal())));
+                packetBuffer -> packetBuffer.writeNbt(psu.getHandler().serializeNBT(ctx.getSource().registryAccess())).writeUUID(uuid).writeInt(psu.getTier().ordinal())));
         } else
             ctx.getSource().sendFailure(Component.translatable("pocketstorage.util.invalid_uuid"));
         return 0;

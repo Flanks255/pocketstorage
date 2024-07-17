@@ -79,7 +79,7 @@ public class StorageManager extends SavedData {
     public static StorageManager load(CompoundTag nbt, HolderLookup.Provider pRegistries) {
         if (nbt.contains("PSUS")) {
             ListTag list = nbt.getList("PSUS", Tag.TAG_COMPOUND);
-            list.forEach((psuNBT) -> PSUData.fromNBT((CompoundTag) psuNBT).ifPresent((psu) -> data.put(psu.getUuid(), psu)));
+            list.forEach((psuNBT) -> PSUData.fromNBT((CompoundTag) psuNBT, pRegistries).ifPresent((psu) -> data.put(psu.getUuid(), psu)));
         }
         return new StorageManager();
     }
@@ -88,7 +88,7 @@ public class StorageManager extends SavedData {
     @Nonnull
     public CompoundTag save(CompoundTag compound,  HolderLookup.Provider pRegistries) {
         ListTag backpacks = new ListTag();
-        data.forEach(((uuid, backpackData) -> backpacks.add(backpackData.toNBT())));
+        data.forEach(((uuid, backpackData) -> backpacks.add(backpackData.toNBT(pRegistries))));
         compound.put("PSUS", backpacks);
         return compound;
     }

@@ -34,7 +34,6 @@ import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -60,7 +59,7 @@ public class PocketStorageUnit extends Item {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, Item.@NotNull TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
         super.appendHoverText(stack, context, tooltip, flagIn);
         String translationKey = getDescriptionId();
 
@@ -79,6 +78,9 @@ public class PocketStorageUnit extends Item {
 
         if (flagIn.isAdvanced() && stack.has(PocketStorage.PSU_UUID.get())) {
             UUID uuid = stack.get(PocketStorage.PSU_UUID.get());
+            tooltip.add(Component.literal("ID: " + uuid.toString().substring(0,8)).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+        } else if (flagIn.isAdvanced() && stack.has(DataComponents.CUSTOM_DATA) && stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).contains("UUID")) {
+            UUID uuid = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).getUnsafe().getUUID("UUID");
             tooltip.add(Component.literal("ID: " + uuid.toString().substring(0,8)).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
         }
     }
@@ -108,8 +110,9 @@ public class PocketStorageUnit extends Item {
         return InteractionResultHolder.success(playerIn.getItemInHand(handIn));
     }
 
+    @Nonnull
     @Override
-    public @NotNull InteractionResult useOn(UseOnContext context) {
+    public InteractionResult useOn(UseOnContext context) {
         if (!context.getLevel().isClientSide) {
             Level world = context.getLevel();
             if (world.getBlockState(context.getClickedPos()).hasBlockEntity() && context.getPlayer() != null && context.getPlayer().isCrouching()) {
@@ -237,7 +240,7 @@ public class PocketStorageUnit extends Item {
 
             playerIn.openMenu(new SimpleMenuProvider((windowId, playerInventory, playerEntity) ->
                     new PSUContainer(windowId, playerInventory, uuid, data.getHandler()), stack.getHoverName()),
-                packetBuffer -> packetBuffer.writeNbt(data.getHandler().serializeNBT(RegistryAccess.EMPTY)).writeUUID(uuid).writeInt(data.getTier().ordinal())
+                packetBuffer -> packetBuffer.writeNbt(data.getHandler().serializeNBT(worldIn.registryAccess())).writeUUID(uuid).writeInt(data.getTier().ordinal())
             );
         }
     }
