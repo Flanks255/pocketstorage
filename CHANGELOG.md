@@ -1,3 +1,6 @@
+### [ 1.1.1+1.21 ]
+- Fixed being able to place items in the pocket storage you should not be able to.
+
 ### [ 1.1.0+1.21 ]
 - Fixed some internals.
 - Redid the list command to be more friendly.

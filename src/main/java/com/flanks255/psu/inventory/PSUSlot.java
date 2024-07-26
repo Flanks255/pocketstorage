@@ -27,7 +27,7 @@ public class PSUSlot {
     }
 
     public boolean checkItem(ItemStack stack) {
-        return (stack.is(item) && !stack.has(DataComponents.CUSTOM_DATA));
+        return (stack.is(item) && PSUItemHandler.isStandardItem(stack));
     }
     public PSUSlot(CompoundTag tag) {
         readNBT(tag);

@@ -86,7 +86,7 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
     }
 
     public ItemStack insertItemSlotless(@Nonnull ItemStack stack, boolean allowEmpty, boolean allowVoid) {
-        if (stack.isEmpty() || stack.has(DataComponents.CUSTOM_DATA))
+        if (stack.isEmpty() || !isItemValid(0, stack))
             return ItemStack.EMPTY;
 
         boolean foundAny = false;
@@ -187,7 +187,14 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
 
     @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        return !stack.has(DataComponents.CUSTOM_DATA) && !(stack.getItem() instanceof PocketStorageUnit);
+        return !stack.has(DataComponents.CUSTOM_DATA) &&
+                !(stack.getItem() instanceof PocketStorageUnit) &&
+                isStandardItem(stack);
+    }
+
+    public static boolean isStandardItem(ItemStack stack) {
+        return stack.isComponentsPatchEmpty();
+        //return ItemStack.isSameItemSameComponents(stack, stack.getItem().getDefaultInstance());
     }
 
     private void onContentsChanged() {
