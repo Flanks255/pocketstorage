@@ -1,3 +1,6 @@
+### [ 1.1.2+1.21 ]
+- Fixed items from removed mods being stuck in the pocket storage.
+
 ### [ 1.1.1+1.21 ]
 - Fixed being able to place items in the pocket storage you should not be able to.
 

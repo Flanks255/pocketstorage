@@ -1,5 +1,6 @@
 package com.flanks255.psu.inventory;
 
+import com.flanks255.psu.PocketStorage;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
@@ -67,11 +68,11 @@ public class PSUSlot {
 
     public void readNBT(CompoundTag tag) {
         if (tag.contains("Item"))
-            item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString("Item")));
-        else {
+            item = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(tag.getString("Item"))).orElse(Items.AIR);
+        else
             return;
-        }
-        if (tag.contains("Count"))
+
+        if (tag.contains("Count") && item != Items.AIR)
             count = tag.getInt("Count");
         else
             count = 0;
