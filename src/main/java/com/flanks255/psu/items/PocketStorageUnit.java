@@ -187,7 +187,7 @@ public class PocketStorageUnit extends Item {
                 continue;
             if (to.hasItem(stack)) {
                 ItemStack newStack = from.extractItem(i, stack.getCount(), false);
-                to.insertItemSlotless(newStack, false, false);
+                from.insertItem(i, to.insertItemSlotless(newStack, false, false), false);
                 movedItems = true;
             }
         }

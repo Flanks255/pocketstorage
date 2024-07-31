@@ -100,9 +100,9 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
                 int remainder = allowVoid ? 0 : Math.max(slot.getCount() + stack.getCount() - slotCapacity, 0);
                 slot.setCount(Math.min(slot.getCount() + stack.getCount(), slotCapacity));
                 onContentsChanged();
-                ItemStack tmpstack = stack.copy();
-                stack.setCount(remainder);
-                return tmpstack;
+                ItemStack returnStack = stack.copy();
+                returnStack.setCount(remainder);
+                return returnStack;
             }
         }
 
