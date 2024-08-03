@@ -12,12 +12,8 @@ Current Features:
     4: 64 slots, 1048575 items per slot.
   Upgradeable via crafting
 
-Mod Integrations:  
-  Coming soon...
-
 Planned Features:  
   Block placement.
-  Curios support.
 
 Requires:  
     Nothing!
