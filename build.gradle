@@ -42,6 +42,13 @@ runs {
             programArguments.addAll('--uuid', ENV.MCDEVUUID)
         }
     }
+    client2 {
+        configure ("client")
+
+        programArguments.addAll '--username', 'Dev2'
+
+        systemProperty 'neoforge.enabledGameTestNamespaces', "pocketstorage"
+    }
 
     server {
         systemProperty 'neoforge.enabledGameTestNamespaces', "pocketstorage"
