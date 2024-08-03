@@ -3,6 +3,7 @@ package com.flanks255.psu.gui;
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.inventory.PSUItemHandler;
 import com.flanks255.psu.items.PSUTier;
+import com.flanks255.psu.network.SlotKeyPacket;
 import com.flanks255.psu.util.PSUtils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
@@ -17,6 +18,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,12 +47,23 @@ public class PSUContainer extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slot, int dragType, ClickType clickTypeIn, Player player) {
+    public void clicked(int slot, int dragType, @Nonnull ClickType clickTypeIn, @Nonnull Player player) {
         if (clickTypeIn == ClickType.SWAP)
             return;
 
         if (slot >= 0) getSlot(slot).container.setChanged();
         super.clicked(slot, dragType, clickTypeIn, player);
+    }
+
+    public void networkSlotKeyPress(int slot, SlotKeyPacket.Key key, boolean ctrl) {
+        if (slot >= 0 && slot <= handler.getSlots()) {
+            if (key == SlotKeyPacket.Key.DROP) {
+                ItemStack tmp = handler.extractItem(slot, ctrl ? 64 : 1, false);
+                if (!tmp.isEmpty()) {
+                    playerInv.player.drop(tmp, false);
+                }
+            }
+        }
     }
 
     public void networkSlotClick(int slot, boolean shift, boolean ctrl, boolean rightClick) {

@@ -2,6 +2,7 @@ package com.flanks255.psu.gui;
 
 import com.flanks255.psu.PocketStorage;
 import com.flanks255.psu.network.SlotClickPacket;
+import com.flanks255.psu.network.SlotKeyPacket;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -60,6 +61,16 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
         if (pScrollY > 0)
             scroll = Mth.clamp(scroll - 4, 0, menu.handler.getSlots() -8);
         return false;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        children().forEach(listener -> {
+            if (listener instanceof GUISlot && ((GUISlot) listener).isHovered())
+                listener.keyPressed(keyCode, scanCode, modifiers);
+        });
+
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
@@ -129,6 +140,17 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
             return false;
         }
 
+        @Override
+        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+            if (Minecraft.getInstance().options.keyDrop.matches(keyCode, scanCode)) {
+                PacketDistributor.sendToServer(new SlotKeyPacket(slot + scroll, SlotKeyPacket.Key.DROP, Screen.hasControlDown()));
+                menu.networkSlotKeyPress(slot+scroll, SlotKeyPacket.Key.DROP, Screen.hasControlDown());
+                return true;
+            }
+
+            return super.keyPressed(keyCode, scanCode, modifiers);
+        }
+
         public void renderToolTip(@Nonnull GuiGraphics gg, int mx, int my) {
             if (mx >= getX() && mx < getX() + width && my >= getY() && my < getY() + height && menu != null && menu.handler != null) {
                 ItemStack stack = menu.handler.getStackInSlot(slot + scroll);
@@ -157,7 +179,7 @@ public class PSUGui extends AbstractContainerScreen<PSUContainer> {
             gg.pose().pushPose();
             Font fontRenderer = Minecraft.getInstance().font;
 
-            boolean hovered = mouseX >= getX() && mouseX < getX() + width && mouseY >= getY() && mouseY < getY() + height;
+            boolean hovered = isHovered;
 
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
