@@ -85,6 +85,8 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
         return slots.stream().filter(s -> ItemStack.isSameItemSameComponents(s.getStack(), stack)).toList();
     }
 
+    // Inserts an item into the first slot that matches the item.
+    // Returns the remainder of the stack if it could not be fully inserted.
     public ItemStack insertItemSlotless(@Nonnull ItemStack stack, boolean allowEmpty, boolean allowVoid) {
         if (stack.isEmpty() || !isItemValid(0, stack))
             return ItemStack.EMPTY;
@@ -113,9 +115,7 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
                 if (slots.get(n).isEmpty()) {
                     slots.set(n, new PSUSlot(stack));
                     onContentsChanged();
-                    ItemStack tmpstack = stack.copy();
-                    stack.setCount(0);
-                    return tmpstack;
+                    return ItemStack.EMPTY;
                 }
             }
         }

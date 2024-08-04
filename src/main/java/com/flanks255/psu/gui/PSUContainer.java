@@ -119,12 +119,17 @@ public class PSUContainer extends AbstractContainerMenu {
         return true;
     }
 
+    @Nonnull
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
         Slot slot = this.slots.get(index);
 
         if (slot != null && slot.hasItem()) {
-            return handler.insertItemSlotless(slot.getItem(), true, true);
+            ItemStack remainder = handler.insertItemSlotless(slot.getItem(), true, true);
+            if (!remainder.isEmpty())
+                slot.set(remainder);
+            else
+                slot.set(ItemStack.EMPTY);
         }
         return ItemStack.EMPTY;
     }
