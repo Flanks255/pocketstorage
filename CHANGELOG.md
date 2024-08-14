@@ -1,3 +1,9 @@
+[ 1.2.2+1.21 ]
+- Fixed shift clicking other items into a full pocket storage voiding.
+
+[ 1.2.1+1.21 ]
+ - Fixed dupe.
+
 ### [ 1.2.0+1.21 ]
 - Fixed voiding items taken from inventories.
 - Added the ability to press Q or CTRL + Q to drop items directly from a open pocket storage.
