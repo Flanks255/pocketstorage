@@ -20,6 +20,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,6 +30,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -88,14 +90,17 @@ public class PocketStorageUnit extends Item {
         Optional<PSUItemHandler> handlerOpt = StorageManager.get().getHandler(stack);
 
         return handlerOpt.map(handler -> {
-            ItemStack pickedUp = event.getItemEntity().getItem();
+            ItemEntity itemEntity = event.getItemEntity();
+            ItemStack pickedUp = itemEntity.getItem();
             for (int i = 0; i < handler.getSlots(); i++) {
                 ItemStack slot = handler.getStackInSlot(i);
                 if (ItemStack.isSameItemSameComponents(slot, pickedUp)) {
                     handler.insertItem(i, pickedUp, false);
                     pickedUp.setCount(0);
-                    event.getPlayer().level().playSound(null, event.getPlayer().blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((random.nextFloat() - random.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                    if(itemEntity.getAge() > 0)
+                        event.getPlayer().level().playSound(null, event.getPlayer().blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((random.nextFloat() - random.nextFloat()) * 0.7F + 1.0F) * 2.0F);
 
+                    event.setCanPickup(TriState.FALSE);
                     return true;
                 }
             }

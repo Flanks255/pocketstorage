@@ -1,3 +1,6 @@
+[ 1.2.3+1.21.1 ]
+- Fixed pickup sounds playing when they shouldn't.
+
 [ 1.2.2+1.21 ]
 - Fixed shift clicking other items into a full pocket storage voiding.
 
