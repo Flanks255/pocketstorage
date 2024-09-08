@@ -1,3 +1,6 @@
+[ 1.2.4+1.21.1 ]
+- Fixed voiding disallowed items when shift-clicking.
+
 [ 1.2.3+1.21.1 ]
 - Fixed pickup sounds playing when they shouldn't.
 

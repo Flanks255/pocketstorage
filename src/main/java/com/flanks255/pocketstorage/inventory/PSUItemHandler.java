@@ -89,7 +89,7 @@ public class PSUItemHandler implements IItemHandler, INBTSerializable<CompoundTa
     // Returns the remainder of the stack if it could not be fully inserted.
     public ItemStack insertItemSlotless(@Nonnull ItemStack stack, boolean allowEmpty, boolean allowVoid) {
         if (stack.isEmpty() || !isItemValid(0, stack))
-            return ItemStack.EMPTY;
+            return stack;
 
         boolean foundAny = false;
         int count = stack.getCount();

@@ -79,6 +79,9 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:TITANIUM-287342:3819942")
     //runtimeOnly fg.deobf("curse.maven:BUILDINGGADGETS-298187:3553977")
     runtimeOnly "curse.maven:MG-351748:5615761"
+    runtimeOnly "curse.maven:EMI-580555:5619579"
+    runtimeOnly "curse.maven:FAST-288885:5670423"
+    runtimeOnly "curse.maven:PLACE-283644:5626449"
 }
 
 jar {
