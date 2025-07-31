@@ -192,20 +192,6 @@ def ghToken = providers.environmentVariable("GITHUB_TOKEN")
 
 //https://modmuss50.github.io/mod-publish-plugin/
 publishMods {
-    dryRun = !providers.environmentVariable("CURSEFORGE_KEY").isPresent()
-    file = jar.archiveFile
-    changelog = file("./CHANGELOG.md").text
-    modLoaders.add("NeoForge")
-    type = BETA
-    curseforge {
-        accessToken = providers.environmentVariable("CURSEFORGE_KEY")
-        projectId = project.curseforge_id
-        minecraftVersions.add(project.minecraft_version)
-    }
-}
-
-//https://modmuss50.github.io/mod-publish-plugin/
-publishMods {
     dryRun = !cfToken.isPresent() || !ghToken.isPresent()
     file = jar.archiveFile
     changelog = createChangelog().trim()
