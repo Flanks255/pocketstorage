@@ -84,7 +84,7 @@ public class PSUContainer extends AbstractContainerMenu {
                     setCarried(handler.insertItem(slot, incoming, false));
                 }
                 else {
-                    if (incoming.getCount() < incoming.getMaxStackSize() && ItemStack.isSameItem(incoming, handler.getStackInSlot(slot))) {
+                    if (incoming.getCount() < incoming.getMaxStackSize() && ItemStack.isSameItemSameComponents(incoming, handler.getStackInSlot(slot))) {
                         ItemStack tmp = handler.extractItem(slot, 1, false);
                         if (!tmp.isEmpty()) {
                             incoming.setCount(incoming.getCount()+1);
