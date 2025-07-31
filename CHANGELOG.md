@@ -1,13 +1,16 @@
-[ 1.2.4+1.21.1 ]
+### [ 1.2.5+1.21.1 ]
+ - Fixed removing items not comparing components correctly.
+
+### [ 1.2.4+1.21.1 ]
 - Fixed voiding disallowed items when shift-clicking.
 
-[ 1.2.3+1.21.1 ]
+### [ 1.2.3+1.21.1 ]
 - Fixed pickup sounds playing when they shouldn't.
 
-[ 1.2.2+1.21 ]
+### [ 1.2.2+1.21 ]
 - Fixed shift clicking other items into a full pocket storage voiding.
 
-[ 1.2.1+1.21 ]
+### [ 1.2.1+1.21 ]
  - Fixed dupe.
 
 ### [ 1.2.0+1.21 ]
