@@ -1,6 +1,6 @@
 [![Curse Forge](http://cf.way2muchnoise.eu/367734.svg)](https://minecraft.curseforge.com/projects/pocket-storage)
 [![Curse Forge](http://cf.way2muchnoise.eu/versions/367734.svg)](https://minecraft.curseforge.com/projects/pocket-storage)
-[![Build and deploy](https://github.com/Flanks255/pocketstorage/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Flanks255/pocketstorage/actions/workflows/build.yml)
+[![Build and deploy](https://github.com/Flanks255/pocketstorage/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/Flanks255/pocketstorage/actions/workflows/release.yml)
 
 A simple tiered pocket mass storage mod, don't let your inventory fill up with cobblestone again.
 
