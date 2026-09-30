@@ -17,3 +17,6 @@ Planned Features:
 
 Requires:  
     Nothing!
+
+### Pull Requests
+- Please do not submit large AI generated pull requests, including version ports.
